@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.Json.Serialization;
 using AzureMcp.Models.Identity;
 
 namespace AzureMcp.Areas.AppConfig.Models;
@@ -23,4 +24,6 @@ public class AppConfigurationAccount
 
     // Full encryption properties
     public EncryptionProperties? Encryption { get; set; }
+
+    internal record AppConfigurationAccountList(IReadOnlyList<AppConfigurationAccount> Accounts);
 }
