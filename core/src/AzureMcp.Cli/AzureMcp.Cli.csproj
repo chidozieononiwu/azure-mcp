@@ -13,9 +13,27 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <DebugType>embedded</DebugType>
   </PropertyGroup>
-  <!-- AOT compilation flags -->
   <PropertyGroup>
+    <!-- AOT compilation flags -->
     <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+    <!-- Multi-platform support -->
+    <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+  <!-- .NET Tool Package settings -->
+  <PropertyGroup>
+    <!-- Bug in 10p6: if this is set to true it prevents 'normal' publishes
+         from generating apphosts. Workaround: set -p PackAsTool=true when
+         calling 'dotnet pack'.
+         See https://github.com/dotnet/sdk/issues/49799 for details. -->
+    <!-- <PackAsTool>true</PackAsTool> -->
+    <PackageType>McpServer</PackageType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>azure;mcp;</PackageTags>
+    <PackageReleaseNotes>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)/../CHANGELOG.md').TrimEnd())</PackageReleaseNotes>
+    <ToolCommandName>$(CliName)</ToolCommandName>
+    <PackageDescription>this is an awesome thing for awesome people</PackageDescription>
   </PropertyGroup>
   <!-- Debug configuration -->
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -37,6 +55,12 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="ModelContextProtocol" />
     <PackageReference Include="System.CommandLine" />
+  </ItemGroup>
+  <ItemGroup>
+  <!-- Tool package content -->
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="./server.json" Pack="true" PackagePath=".mcp/" />
   </ItemGroup>
 
   <!-- Remove Cosmos native files from the build output directory -->
