@@ -35,6 +35,24 @@
     <SelfContained>true</SelfContained>
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
     <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+    <!-- Multi-platform support -->
+    <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+  <!-- .NET Tool Package settings -->
+  <PropertyGroup>
+    <!-- Bug in 10p6: if this is set to true it prevents 'normal' publishes
+         from generating apphosts. Workaround: set -p PackAsTool=true when
+         calling 'dotnet pack'.
+         See https://github.com/dotnet/sdk/issues/49799 for details. -->
+    <!-- <PackAsTool>true</PackAsTool> -->
+    <PackageType>McpServer</PackageType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>azure;mcp;</PackageTags>
+    <PackageReleaseNotes>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)/../CHANGELOG.md').TrimEnd())</PackageReleaseNotes>
+    <ToolCommandName>$(CliName)</ToolCommandName>
+    <PackageDescription>this is an awesome thing for awesome people</PackageDescription>
   </PropertyGroup>
 
   <!-- Debug configuration -->
@@ -57,12 +75,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="ModelContextProtocol" />
     <PackageReference Include="System.CommandLine" />
-  </ItemGroup>
-  <!-- These items only need to be in the top-level wrapper tool package -->
-  <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
-    <!-- TODO: Change the content of the README automatically to point to dnx-based usages and package names? 
-               Could use the target below that templates the mcp server.json as a guideline. -->
-    <None Include="../../../README.md" Pack="true" PackagePath="./README.md" />
   </ItemGroup>
 
   <!-- Remove non-AOT safe projects and packages when building native -->
