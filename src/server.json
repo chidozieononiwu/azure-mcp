@@ -1,0 +1,12 @@
+{
+  "inputs": [],
+  "servers": {
+    "Azure.MCP": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": ["AzureMcp", "--yes", "--prerelease"],
+      "env": {
+      }
+    }
+  }
+}

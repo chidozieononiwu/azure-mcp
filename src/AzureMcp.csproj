@@ -11,12 +11,30 @@
     <!-- Publishing settings -->
     <IsAotCompatible>true</IsAotCompatible>
     <PublishSingleFile>false</PublishSingleFile>
-    <SelfContained>false</SelfContained>
+    <PublishSelfContained>true</PublishSelfContained>
     <PublishReadyToRun>false</PublishReadyToRun>
     <PublishTrimmed>false</PublishTrimmed>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <DebugType>embedded</DebugType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+
+    <!-- Multi-platform support -->
+    <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
+
+    <!-- .NET Tool Package settings -->
+    <!-- Bug in 10p6: if this is set to true it prevents 'normal' publishes
+         from generating apphosts. Workaround: set -p PackAsTool=true when
+         calling 'dotnet pack'.
+         See https://github.com/dotnet/sdk/issues/49799 for details. -->
+    <!-- <PackAsTool>true</PackAsTool> -->
+    <PackageType>McpServer</PackageType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>azure;mcp;</PackageTags>
+    <PackageReleaseNotes>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)/../CHANGELOG.md').TrimEnd())</PackageReleaseNotes>
+    <ToolCommandName>$(CliName)</ToolCommandName>
+    <PackageDescription>this is an awesome thing for awesome people</PackageDescription>
 
     <!-- Suppress SYSLIB0020 for generated System.Text.Json code that uses obsolete IgnoreNullValues -->
     <NoWarn>$(NoWarn);SYSLIB0020</NoWarn>
@@ -35,17 +53,17 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
-  <!-- Multi-platform support -->
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
-  </PropertyGroup>
-
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
     <RuntimeHostConfigurationOption Include="Azure.Experimental.EnableActivitySource" Value="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="" />
+    <None Include="./server.json" Pack="true" PackagePath=".mcp/" />
   </ItemGroup>
 
   <ItemGroup>
