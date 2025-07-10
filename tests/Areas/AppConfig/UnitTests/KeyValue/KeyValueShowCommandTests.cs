@@ -4,7 +4,6 @@
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using AzureMcp.Areas.AppConfig.Commands.KeyValue;
 using AzureMcp.Areas.AppConfig.Models;
 using AzureMcp.Areas.AppConfig.Services;
@@ -14,7 +13,6 @@ using AzureMcp.Tests.Models.AppConfig;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using Xunit;
 
 namespace AzureMcp.Tests.Areas.AppConfig.UnitTests.KeyValue;

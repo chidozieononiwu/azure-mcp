@@ -4,7 +4,6 @@
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using AzureMcp.Areas.AppConfig.Commands.KeyValue;
 using AzureMcp.Areas.AppConfig.Models;
 using AzureMcp.Areas.AppConfig.Services;
@@ -14,7 +13,6 @@ using AzureMcp.Tests.Models.AppConfig;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using Xunit;
 
 namespace AzureMcp.Tests.Areas.AppConfig.UnitTests.KeyValue;
@@ -109,20 +107,6 @@ public class KeyValueListCommandTests
     [Fact]
     public async Task ExecuteAsync_ReturnsFilteredSettings_WhenLabelFilterProvided()
     {
-        // Arrange
-        var expectedSettings = new List<KeyValueSetting>
-        {
-            new() { Key = "key1", Value = "value1", Label = "prod" }
-        };
-        _appConfigService.ListKeyValues(
-          Arg.Any<string>(),
-          Arg.Any<string>(),
-          Arg.Any<string>(),
-          Arg.Any<string>(),
-          Arg.Any<string>(),
-          Arg.Any<RetryPolicyOptions>())
-          .Returns(expectedSettings);
-
         var command = new KeyValueListCommand(_logger);
         var args = command.GetCommand().Parse(["--subscription", "sub123", "--account-name", "account1", "--label", "prod"]);
         var context = new CommandContext(_serviceProvider);

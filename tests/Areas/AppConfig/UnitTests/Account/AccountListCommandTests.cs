@@ -4,7 +4,6 @@
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using AzureMcp.Areas.AppConfig.Commands.Account;
 using AzureMcp.Areas.AppConfig.Models;
 using AzureMcp.Areas.AppConfig.Services;
@@ -72,7 +71,7 @@ public class AccountListCommandTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ReturnsEmptyList_WhenNoAccountsExist()
+    public async Task ExecuteAsync_ReturnsNull_WhenNoAccountsExist()
     {
         // Arrange
         var expectedAccounts = new List<AppConfigurationAccount>();
@@ -125,5 +124,24 @@ public class AccountListCommandTests
         // Assert
         Assert.Equal(400, response.Status);
         Assert.Contains("required", response.Message.ToLower());
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_Returns503_WhenServiceIsUnavailable()
+    {
+        // Arrange
+        _appConfigService.GetAppConfigAccounts(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<RetryPolicyOptions>())
+            .ThrowsAsync(new HttpRequestException("Service Unavailable", null, System.Net.HttpStatusCode.ServiceUnavailable));
+
+        var command = new AccountListCommand(_logger);
+        var args = command.GetCommand().Parse(["--subscription", "sub123"]);
+        var context = new CommandContext(_serviceProvider);
+
+        // Act
+        var response = await command.ExecuteAsync(context, args);
+
+        // Assert
+        Assert.Equal(503, response.Status);
+        Assert.Contains("Service Unavailable", response.Message);
     }
 }
