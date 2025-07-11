@@ -16,37 +16,41 @@ using Xunit;
 
 namespace AzureMcp.Tests.Areas.AppConfig.UnitTests.KeyValue;
 
+[Trait("Area", "AppConfig")]
 public class KeyValueDeleteCommandTests
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IAppConfigService _appConfigService;
     private readonly ILogger<KeyValueDeleteCommand> _logger;
+    private readonly KeyValueDeleteCommand _command;
+    private readonly CommandContext _context;
+    private readonly Parser _parser;
 
     public KeyValueDeleteCommandTests()
     {
         _appConfigService = Substitute.For<IAppConfigService>();
         _logger = Substitute.For<ILogger<KeyValueDeleteCommand>>();
 
-        var collection = new ServiceCollection();
-        collection.AddSingleton(_appConfigService);
-
-        _serviceProvider = collection.BuildServiceProvider();
+        _command = new(_logger);
+        _parser = new(_command.GetCommand());
+        _serviceProvider = new ServiceCollection()
+            .AddSingleton(_appConfigService)
+            .BuildServiceProvider();
+        _context = new(_serviceProvider);
     }
 
     [Fact]
     public async Task ExecuteAsync_DeletesKeyValue_WhenValidParametersProvided()
     {
         // Arrange
-        var command = new KeyValueDeleteCommand(_logger);
-        var args = command.GetCommand().Parse([
+        var args = _parser.Parse([
             "--subscription", "sub123",
             "--account-name", "account1",
             "--key", "my-key"
         ]);
-        var context = new CommandContext(_serviceProvider);
 
         // Act
-        var response = await command.ExecuteAsync(context, args);
+        var response = await _command.ExecuteAsync(_context, args);
 
         // Assert
         Assert.Equal(200, response.Status);
@@ -68,17 +72,15 @@ public class KeyValueDeleteCommandTests
     public async Task ExecuteAsync_DeletesKeyValueWithLabel_WhenLabelProvided()
     {
         // Arrange
-        var command = new KeyValueDeleteCommand(_logger);
-        var args = command.GetCommand().Parse([
+        var args = _parser.Parse([
             "--subscription", "sub123",
             "--account-name", "account1",
             "--key", "my-key",
             "--label", "prod"
         ]);
-        var context = new CommandContext(_serviceProvider);
 
         // Act
-        var response = await command.ExecuteAsync(context, args);
+        var response = await _command.ExecuteAsync(_context, args);
 
         // Assert
         Assert.Equal(200, response.Status);
@@ -110,16 +112,14 @@ public class KeyValueDeleteCommandTests
             Arg.Any<string>())
             .Returns(Task.FromException<bool>(new Exception("Failed to delete key-value")));
 
-        var command = new KeyValueDeleteCommand(_logger);
-        var args = command.GetCommand().Parse([
+        var args = _parser.Parse([
             "--subscription", "sub123",
             "--account-name", "account1",
             "--key", "my-key"
         ]);
-        var context = new CommandContext(_serviceProvider);
 
         // Act
-        var response = await command.ExecuteAsync(context, args);
+        var response = await _command.ExecuteAsync(_context, args);
 
         // Assert
         Assert.Equal(500, response.Status);
@@ -133,12 +133,10 @@ public class KeyValueDeleteCommandTests
     public async Task ExecuteAsync_Returns400_WhenRequiredParametersAreMissing(params string[] args)
     {
         // Arrange
-        var command = new KeyValueDeleteCommand(_logger);
-        var parseResult = command.GetCommand().Parse(args);
-        var context = new CommandContext(_serviceProvider);
+        var parseResult = _parser.Parse(args);
 
         // Act
-        var response = await command.ExecuteAsync(context, parseResult);
+        var response = await _command.ExecuteAsync(_context, parseResult);
 
         // Assert
         Assert.Equal(400, response.Status);

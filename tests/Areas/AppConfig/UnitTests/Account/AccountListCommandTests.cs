@@ -7,6 +7,7 @@ using System.Text.Json;
 using AzureMcp.Areas.AppConfig.Commands.Account;
 using AzureMcp.Areas.AppConfig.Models;
 using AzureMcp.Areas.AppConfig.Services;
+using AzureMcp.Areas.Storage.Commands.Blob;
 using AzureMcp.Models.Command;
 using AzureMcp.Options;
 using AzureMcp.Tests.Models.AppConfig;
@@ -18,21 +19,27 @@ using Xunit;
 
 namespace AzureMcp.Tests.Areas.AppConfig.UnitTests.Account;
 
+[Trait("Area", "AppConfig")]
 public class AccountListCommandTests
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IAppConfigService _appConfigService;
     private readonly ILogger<AccountListCommand> _logger;
+    private readonly AccountListCommand _command;
+    private readonly CommandContext _context;
+    private readonly Parser _parser;
 
     public AccountListCommandTests()
     {
         _appConfigService = Substitute.For<IAppConfigService>();
         _logger = Substitute.For<ILogger<AccountListCommand>>();
 
-        var collection = new ServiceCollection();
-        collection.AddSingleton(_appConfigService);
-
-        _serviceProvider = collection.BuildServiceProvider();
+        _command = new(_logger);
+        _parser = new(_command.GetCommand());
+        _serviceProvider = new ServiceCollection()
+            .AddSingleton(_appConfigService)
+            .BuildServiceProvider();
+        _context = new(_serviceProvider);
     }
 
     [Fact]
@@ -44,15 +51,16 @@ public class AccountListCommandTests
             new() { Name = "account1", Location = "East US", Endpoint = "https://account1.azconfig.io" },
             new() { Name = "account2", Location = "West US", Endpoint = "https://account2.azconfig.io" }
         };
-        _appConfigService.GetAppConfigAccounts("sub123", Arg.Any<string?>(), Arg.Any<RetryPolicyOptions?>())
+        _appConfigService.GetAppConfigAccounts(
+            "sub123",
+            Arg.Any<string?>(),
+            Arg.Any<RetryPolicyOptions?>())
             .Returns(expectedAccounts);
 
-        var command = new AccountListCommand(_logger);
-        var args = command.GetCommand().Parse(["--subscription", "sub123"]);
-        var context = new CommandContext(_serviceProvider);
+        var args = _parser.Parse(["--subscription", "sub123"]);
 
         // Act
-        var response = await command.ExecuteAsync(context, args);
+        var response = await _command.ExecuteAsync(_context, args);
 
         // Assert
         Assert.Equal(200, response.Status);
@@ -76,15 +84,16 @@ public class AccountListCommandTests
         // Arrange
         var expectedAccounts = new List<AppConfigurationAccount>();
 
-        _appConfigService.GetAppConfigAccounts(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<RetryPolicyOptions>())
+        _appConfigService.GetAppConfigAccounts(
+            Arg.Any<string>(),
+            Arg.Any<string>(),
+            Arg.Any<RetryPolicyOptions>())
             .Returns(expectedAccounts);
 
-        var command = new AccountListCommand(_logger);
-        var args = command.GetCommand().Parse(["--subscription", "sub123"]);
-        var context = new CommandContext(_serviceProvider);
+        var args = _parser.Parse(["--subscription", "sub123"]);
 
         // Act
-        var response = await command.ExecuteAsync(context, args);
+        var response = await _command.ExecuteAsync(_context, args);
 
         // Assert
         Assert.Equal(200, response.Status);
@@ -95,15 +104,17 @@ public class AccountListCommandTests
     public async Task ExecuteAsync_Returns500_WhenServiceThrowsException()
     {
         // Arrange
-        _appConfigService.GetAppConfigAccounts(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<RetryPolicyOptions>())
+        _appConfigService.GetAppConfigAccounts(
+            Arg.Any<string>(),
+            Arg.Any<string>(),
+            Arg.Any<RetryPolicyOptions>())
             .Returns(Task.FromException<List<AppConfigurationAccount>>(new Exception("Service error")));
 
-        var command = new AccountListCommand(_logger);
-        var args = command.GetCommand().Parse(["--subscription", "sub123"]);
+        var args = _parser.Parse(["--subscription", "sub123"]);
         var context = new CommandContext(_serviceProvider);
 
         // Act
-        var response = await command.ExecuteAsync(context, args);
+        var response = await _command.ExecuteAsync(_context, args);
 
         // Assert
         Assert.Equal(500, response.Status);
@@ -113,13 +124,8 @@ public class AccountListCommandTests
     [Fact]
     public async Task ExecuteAsync_Returns400_WhenSubscriptionIsMissing()
     {
-        // Arrange
-        var command = new AccountListCommand(_logger);
-        var parseResult = command.GetCommand().Parse([]); // No arguments at all
-        var context = new CommandContext(_serviceProvider);
-
-        // Act
-        var response = await command.ExecuteAsync(context, parseResult);
+        // Arrange && Act
+        var response = await _command.ExecuteAsync(_context, _parser.Parse([]));
 
         // Assert
         Assert.Equal(400, response.Status);
@@ -133,12 +139,10 @@ public class AccountListCommandTests
         _appConfigService.GetAppConfigAccounts(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<RetryPolicyOptions>())
             .ThrowsAsync(new HttpRequestException("Service Unavailable", null, System.Net.HttpStatusCode.ServiceUnavailable));
 
-        var command = new AccountListCommand(_logger);
-        var args = command.GetCommand().Parse(["--subscription", "sub123"]);
-        var context = new CommandContext(_serviceProvider);
+        var args = _parser.Parse(["--subscription", "sub123"]);
 
         // Act
-        var response = await command.ExecuteAsync(context, args);
+        var response = await _command.ExecuteAsync(_context, args);
 
         // Assert
         Assert.Equal(503, response.Status);

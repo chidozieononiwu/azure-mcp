@@ -17,6 +17,7 @@ using Xunit;
 
 namespace AzureMcp.Tests.Areas.AppConfig.UnitTests.KeyValue;
 
+[Trait("Area", "AppConfig")]
 public class KeyValueSetCommandTests
 {
     private readonly IServiceProvider _serviceProvider;
