@@ -1,8 +1,6 @@
-﻿using System.CommandLine;
-using System.CommandLine.Parsing;
+﻿using System.CommandLine.Parsing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AzureMcp.Areas.AppConfig.Commands.KeyValue;
 using AzureMcp.Areas.Cosmos.Commands;
 using AzureMcp.Areas.Cosmos.Services;
 using AzureMcp.Models;
@@ -25,8 +23,6 @@ public class DatabaseListCommandTests
     private readonly DatabaseListCommand _command;
     private readonly CommandContext _context;
     private readonly Parser _parser;
-    private readonly string _knownAccountName = "account123";
-    private readonly string _knownSubscriptionId = "sub123";
 
     public DatabaseListCommandTests()
     {
@@ -46,16 +42,16 @@ public class DatabaseListCommandTests
         // Arrange
         var expectedDatabases = new List<string> { "database1", "database2" };
         _cosmosService.ListDatabases(
-            Arg.Is(_knownAccountName),
-            Arg.Is(_knownSubscriptionId),
+            Arg.Is("account123"),
+            Arg.Is("sub123"),
             Arg.Any<AuthMethod>(),
             Arg.Any<string>(),
             Arg.Any<RetryPolicyOptions>())
             .Returns(expectedDatabases);
 
         var args = _parser.Parse([
-            "--account-name", _knownAccountName,
-            "--subscription", _knownSubscriptionId
+            "--account-name", "account123",
+            "--subscription", "sub123"
         ]);
 
         // Act
@@ -76,16 +72,16 @@ public class DatabaseListCommandTests
     {
         // Arrange
         _cosmosService.ListDatabases(
-            Arg.Is(_knownAccountName),
-            Arg.Is(_knownSubscriptionId),
+            Arg.Is("account123"),
+            Arg.Is("sub123"),
             Arg.Any<AuthMethod>(),
             Arg.Any<string>(),
             Arg.Any<RetryPolicyOptions>())
             .Returns(new List<string>());
 
         var args = _parser.Parse([
-            "--account-name", _knownAccountName,
-            "--subscription", _knownSubscriptionId
+            "--account-name", "account123",
+            "--subscription", "sub123"
         ]);
 
         // Act
@@ -103,16 +99,16 @@ public class DatabaseListCommandTests
         var expectedError = "Test error";
 
         _cosmosService.ListDatabases(
-            Arg.Is(_knownAccountName),
-            Arg.Is(_knownSubscriptionId),
+            Arg.Is("account123"),
+            Arg.Is("sub123"),
             Arg.Any<AuthMethod>(),
             Arg.Any<string>(),
             Arg.Any<RetryPolicyOptions>())
             .ThrowsAsync(new Exception(expectedError));
 
         var args = _parser.Parse([
-            "--account-name", _knownAccountName,
-            "--subscription", _knownSubscriptionId
+            "--account-name", "account123",
+            "--subscription", "sub123"
         ]);
 
         // Act 
