@@ -29,6 +29,6 @@
   ],
   "optionalDependencies": {},
   "scripts": {
-    "postinstall": "node ./scripts/check-required-packages.js"
+    "postinstall": "node ./scripts/post-install-script.js"
   }
 }
