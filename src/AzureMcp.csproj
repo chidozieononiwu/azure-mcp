@@ -41,7 +41,8 @@
     <PackageDescription Condition="'$(RuntimeIdentifier)' != ''">Azure MCP Server - Model Context Protocol implementation for Azure. Internal implementation package for $(RuntimeIdentifier).</PackageDescription>
 
     <!-- Suppress SYSLIB0020 for generated System.Text.Json code that uses obsolete IgnoreNullValues -->
-    <NoWarn>$(NoWarn);SYSLIB0020</NoWarn>
+    <!-- Suppress NU5104 to allow a stable package version with prerelease dependencies -->
+    <NoWarn>$(NoWarn);SYSLIB0020;NU5104</NoWarn>
   </PropertyGroup>
 
   <!-- AOT compilation flags -->

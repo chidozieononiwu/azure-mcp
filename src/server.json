@@ -1,12 +1,30 @@
 {
-  "inputs": [],
-  "servers": {
-    "Azure.MCP": {
-      "type": "stdio",
-      "command": "dnx",
-      "args": ["AzureMcp", "--yes", "--prerelease"],
-      "env": {
-      }
+  "description": "The Azure MCP Server implements the MCP specification to create a seamless connection between AI agents and Azure services.",
+  "name": "io.github.azure/azure-mcp",
+  "packages": [
+    {
+      "registry_name": "nuget",
+      "name": "Azure.Mcp",
+      "version": "0.0.1-preview",
+      "package_arguments": [
+        {
+          "type": "positional",
+          "value": "server",
+          "value_hint": "server"
+        },
+        {
+          "type": "positional",
+          "value": "start",
+          "value_hint": "start"
+        }
+      ]
     }
+  ],
+  "repository": {
+    "url": "https://github.com/Azure/azure-mcp",
+    "source": "github"
+  },
+  "version_detail": {
+    "version": "0.0.1-preview"
   }
 }
