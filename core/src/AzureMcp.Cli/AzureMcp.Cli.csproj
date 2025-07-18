@@ -46,13 +46,17 @@
          calling 'dotnet pack'.
          See https://github.com/dotnet/sdk/issues/49799 for details. -->
     <!-- <PackAsTool>true</PackAsTool> -->
-    <PackageType>McpServer</PackageType>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- Work around p6 bug by only setting the McpServer package type on the top-level wrapper package. 
+         Already fixed in p7. -->
+    <PackageType Condition="'$(RuntimeIdentifier)' == ''">McpServer</PackageType>
+    <PackageId>Azure.Mcp</PackageId>
+    <PackageReadmeFile Condition="'$(RuntimeIdentifier)' == ''">README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>azure;mcp;</PackageTags>
-    <PackageReleaseNotes>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)/../CHANGELOG.md').TrimEnd())</PackageReleaseNotes>
+    <PackageReleaseNotes Condition="'$(RuntimeIdentifier)' == ''">$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)/../CHANGELOG.md').TrimEnd())</PackageReleaseNotes>
     <ToolCommandName>$(CliName)</ToolCommandName>
-    <PackageDescription>this is an awesome thing for awesome people</PackageDescription>
+    <PackageDescription Condition="'$(RuntimeIdentifier)' == ''">Azure MCP Server - Model Context Protocol implementation for Azure</PackageDescription>
+    <PackageDescription Condition="'$(RuntimeIdentifier)' != ''">Azure MCP Server - Model Context Protocol implementation for Azure. Internal implementation package for $(RuntimeIdentifier).</PackageDescription>
   </PropertyGroup>
 
   <!-- Debug configuration -->
