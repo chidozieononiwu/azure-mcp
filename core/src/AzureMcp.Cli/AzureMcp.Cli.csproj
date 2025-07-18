@@ -63,7 +63,7 @@
   <ItemGroup>
   <!-- These items only need to be in the top-level wrapper tool package -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
-    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../README.dotnet.md" Pack="true" PackagePath="" />
     <None Include="./server.json" Pack="true" PackagePath=".mcp/" />
   </ItemGroup>
 
