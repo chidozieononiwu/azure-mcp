@@ -143,12 +143,19 @@
     </ItemGroup>
   </Target>
 
+  <PropertyGroup>
+    <_PaddedPackageTypes>;$(PackageType)</_PaddedPackageTypes>
+    <_HasMcpServerPackageType Condition="$(_PaddedPackageTypes.ToLowerInvariant().Contains(';mcpserver'))">true</_HasMcpServerPackageType>
+    <_HasMcpServerJsonTemplate Condition="'$(McpServerJsonTemplateFile)' != '' and Exists('$(McpServerJsonTemplateFile)')">true</_HasMcpServerJsonTemplate>
+    <_ShouldUpdateServerJsonForPackaging Condition="'$(_HasMcpServerPackageType)' == 'true' and '$(_HasMcpServerJsonTemplate)' == 'true'">true</_ShouldUpdateServerJsonForPackaging>
+  </PropertyGroup>
+
   <Target
     Name="UpdateServerJsonForPackaging"
     DependsOnTargets="_InitializeNuspecRepositoryInformationProperties"
     BeforeTargets="GenerateNuspec;_GetPackageFiles"
     Outputs="@(_UpdatedServerJsonPath)"
-    Condition="'$(RuntimeIdentifier)' == '' and '$(McpServerJsonTemplateFile)' != '' and Exists('$(McpServerJsonTemplateFile)')">
+    Condition="'$(_ShouldUpdateServerJsonForPackaging)' == 'true'">
     
     <PropertyGroup>
       <_UpdatedServerJsonPath>$(IntermediateOutputPath).mcp\server.json</_UpdatedServerJsonPath>
