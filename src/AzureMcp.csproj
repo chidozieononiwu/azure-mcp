@@ -33,6 +33,8 @@
     <PackageType Condition="'$(RuntimeIdentifier)' == ''">McpServer</PackageType>
     <PackageId>Azure.Mcp</PackageId>
     <PackageReadmeFile Condition="'$(RuntimeIdentifier)' == ''">README.md</PackageReadmeFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <McpServerJsonTemplateFile>server.json</McpServerJsonTemplateFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>azure;mcp;</PackageTags>
     <PackageReleaseNotes Condition="'$(RuntimeIdentifier)' == ''">$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)/../CHANGELOG.md').TrimEnd())</PackageReleaseNotes>
@@ -69,7 +71,6 @@
   <!-- These items only need to be in the top-level wrapper tool package -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
     <None Include="../README.dotnet.md" Pack="true" PackagePath="/README.md" />
-    <None Include="./server.json" Pack="true" PackagePath=".mcp/" />
   </ItemGroup>
 
   <ItemGroup>
@@ -142,6 +143,46 @@
     </ItemGroup>
   </Target>
 
+  <Target
+    Name="UpdateServerJsonForPackaging"
+    DependsOnTargets="_InitializeNuspecRepositoryInformationProperties"
+    BeforeTargets="GenerateNuspec;_GetPackageFiles"
+    Outputs="@(_UpdatedServerJsonPath)"
+    Condition="'$(RuntimeIdentifier)' == '' and '$(McpServerJsonTemplateFile)' != '' and Exists('$(McpServerJsonTemplateFile)')">
+    
+    <PropertyGroup>
+      <_UpdatedServerJsonPath>$(IntermediateOutputPath).mcp\server.json</_UpdatedServerJsonPath>
+      <_McpServerJsonFileContent>$([System.IO.File]::ReadAllText($(McpServerJsonTemplateFile)))</_McpServerJsonFileContent>
+    </PropertyGroup>
+
+    <!-- Maybe this can be done in a more generic way. -->
+    <PropertyGroup>
+      <_McpServerJsonFileContent>$(_McpServerJsonFileContent
+        .Replace('%24(PackageId)', '$(PackageId)')
+        .Replace('%24(PackageVersion)', '$(PackageVersion)')
+        .Replace('%24(PackageDescription)', '$(PackageDescription)')
+        .Replace('%24(RepositoryUrl)', '$(RepositoryUrl)'))</_McpServerJsonFileContent>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_McpServerJsonFileContentLine Include="$(_McpServerJsonFileContent)" />
+    </ItemGroup>
+
+    <WriteLinesToFile
+      File="$(_UpdatedServerJsonPath)"
+      Lines="@(_McpServerJsonFileContentLine)"
+      Overwrite="true"
+      WriteOnlyWhenDifferent="true" />
+      
+    <ItemGroup>
+      <ItemWrites Include="$(_UpdatedServerJsonPath)" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="$(_UpdatedServerJsonPath)" Pack="true" PackagePath="/.mcp/server.json" />
+    </ItemGroup>
+    
+  </Target>
 
   <PropertyGroup>
     <TrimmerSingleWarn>false</TrimmerSingleWarn>

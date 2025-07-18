@@ -1,12 +1,12 @@
 {
   "$schema": "https://modelcontextprotocol.io/schemas/draft/2025-07-09/server.json",
-  "description": "The Azure MCP Server implements the MCP specification to create a seamless connection between AI agents and Azure services.",
+  "description": "$(PackageDescription)",
   "name": "io.github.azure/azure-mcp",
   "packages": [
     {
       "registry_name": "nuget",
-      "name": "Azure.Mcp",
-      "version": "0.0.1-preview",
+      "name": "$(PackageId)",
+      "version": "$(PackageVersion)",
       "package_arguments": [
         {
           "type": "positional",
@@ -22,10 +22,10 @@
     }
   ],
   "repository": {
-    "url": "https://github.com/Azure/azure-mcp",
+    "url": "$(RepositoryUrl)",
     "source": "github"
   },
   "version_detail": {
-    "version": "0.0.1-preview"
+    "version": "$(PackageVersion)"
   }
 }
