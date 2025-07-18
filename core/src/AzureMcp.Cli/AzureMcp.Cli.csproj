@@ -38,6 +38,8 @@
     <ToolCommandName>$(CliName)</ToolCommandName>
     <PackageDescription Condition="'$(RuntimeIdentifier)' == ''">Azure MCP Server - Model Context Protocol implementation for Azure</PackageDescription>
     <PackageDescription Condition="'$(RuntimeIdentifier)' != ''">Azure MCP Server - Model Context Protocol implementation for Azure. Internal implementation package for $(RuntimeIdentifier).</PackageDescription>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <McpServerJsonTemplateFile>server.json</McpServerJsonTemplateFile>
   </PropertyGroup>
   <!-- Debug configuration -->
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -64,7 +66,6 @@
   <!-- These items only need to be in the top-level wrapper tool package -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
     <None Include="../../README.dotnet.md" Pack="true" PackagePath="" />
-    <None Include="./server.json" Pack="true" PackagePath=".mcp/" />
   </ItemGroup>
 
   <!-- Remove Cosmos native files from the build output directory -->
@@ -75,5 +76,46 @@
     <ItemGroup>
       <ContentWithTargetPath Remove="@(FilesToRemove)" />
     </ItemGroup>
+  </Target>
+
+  <Target
+    Name="UpdateServerJsonForPackaging"
+    DependsOnTargets="_InitializeNuspecRepositoryInformationProperties"
+    BeforeTargets="GenerateNuspec;_GetPackageFiles"
+    Outputs="@(_UpdatedServerJsonPath)"
+    Condition="'$(RuntimeIdentifier)' == '' and '$(McpServerJsonTemplateFile)' != '' and Exists('$(McpServerJsonTemplateFile)')">
+    
+    <PropertyGroup>
+      <_UpdatedServerJsonPath>$(IntermediateOutputPath).mcp\server.json</_UpdatedServerJsonPath>
+      <_McpServerJsonFileContent>$([System.IO.File]::ReadAllText($(McpServerJsonTemplateFile)))</_McpServerJsonFileContent>
+    </PropertyGroup>
+
+    <!-- Maybe this can be done in a more generic way. -->
+    <PropertyGroup>
+      <_McpServerJsonFileContent>$(_McpServerJsonFileContent
+        .Replace('%24(PackageId)', '$(PackageId)')
+        .Replace('%24(PackageVersion)', '$(PackageVersion)')
+        .Replace('%24(PackageDescription)', '$(PackageDescription)')
+        .Replace('%24(RepositoryUrl)', '$(RepositoryUrl)'))</_McpServerJsonFileContent>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_McpServerJsonFileContentLine Include="$(_McpServerJsonFileContent)" />
+    </ItemGroup>
+
+    <WriteLinesToFile
+      File="$(_UpdatedServerJsonPath)"
+      Lines="@(_McpServerJsonFileContentLine)"
+      Overwrite="true"
+      WriteOnlyWhenDifferent="true" />
+      
+    <ItemGroup>
+      <ItemWrites Include="$(_UpdatedServerJsonPath)" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="$(_UpdatedServerJsonPath)" Pack="true" PackagePath="/.mcp/server.json" />
+    </ItemGroup>
+    
   </Target>
 </Project>
