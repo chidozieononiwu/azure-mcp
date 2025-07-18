@@ -57,6 +57,8 @@
     <ToolCommandName>$(CliName)</ToolCommandName>
     <PackageDescription Condition="'$(RuntimeIdentifier)' == ''">Azure MCP Server - Model Context Protocol implementation for Azure</PackageDescription>
     <PackageDescription Condition="'$(RuntimeIdentifier)' != ''">Azure MCP Server - Model Context Protocol implementation for Azure. Internal implementation package for $(RuntimeIdentifier).</PackageDescription>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <McpServerJsonTemplateFile>server.json</McpServerJsonTemplateFile>
   </PropertyGroup>
 
   <!-- Debug configuration -->
@@ -80,6 +82,14 @@
     <PackageReference Include="ModelContextProtocol" />
     <PackageReference Include="System.CommandLine" />
   </ItemGroup>
+<<<<<<< HEAD
+=======
+  <ItemGroup>
+  <!-- These items only need to be in the top-level wrapper tool package -->
+  <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
+    <None Include="../../README.dotnet.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+>>>>>>> 2348d9db (Automatically update the server.json)
 
   <!-- Remove non-AOT safe projects and packages when building native -->
   <!-- https://github.com/Azure/azure-mcp-pr/issues/318 -->
@@ -99,6 +109,7 @@
     </ItemGroup>
   </Target>
 
+<<<<<<< HEAD
   <PropertyGroup>
     <_PaddedPackageTypes>;$(PackageType)</_PaddedPackageTypes>
     <_HasMcpServerPackageType Condition="$(_PaddedPackageTypes.ToLowerInvariant().Contains(';mcpserver'))">true</_HasMcpServerPackageType>
@@ -106,12 +117,18 @@
     <_ShouldUpdateServerJsonForPackaging Condition="'$(_HasMcpServerPackageType)' == 'true' and '$(_HasMcpServerJsonTemplate)' == 'true'">true</_ShouldUpdateServerJsonForPackaging>
   </PropertyGroup>
 
+=======
+>>>>>>> 2348d9db (Automatically update the server.json)
   <Target
     Name="UpdateServerJsonForPackaging"
     DependsOnTargets="_InitializeNuspecRepositoryInformationProperties"
     BeforeTargets="GenerateNuspec;_GetPackageFiles"
     Outputs="@(_UpdatedServerJsonPath)"
+<<<<<<< HEAD
     Condition="'$(_ShouldUpdateServerJsonForPackaging)' == 'true'">
+=======
+    Condition="'$(RuntimeIdentifier)' == '' and '$(McpServerJsonTemplateFile)' != '' and Exists('$(McpServerJsonTemplateFile)')">
+>>>>>>> 2348d9db (Automatically update the server.json)
     
     <PropertyGroup>
       <_UpdatedServerJsonPath>$(IntermediateOutputPath).mcp\server.json</_UpdatedServerJsonPath>
@@ -144,6 +161,10 @@
     <ItemGroup>
       <None Include="$(_UpdatedServerJsonPath)" Pack="true" PackagePath="/.mcp/server.json" />
     </ItemGroup>
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 2348d9db (Automatically update the server.json)
   </Target>
 </Project>
 
