@@ -1,6 +1,6 @@
 # How the .NET Tool packaging process works
 
-Much like the [npm packages](https://github.com/azure/azure-mcp/blob/main/eng/npm/README.md), the Azure MCP server is published as a .NET Tool that supports specific platforms. This feature is new as of [.NET 10 preview 6](https://github.com/dotnet/core/blob/main/release-notes/10.0/preview/preview6/sdk.md#platform-specific-net-tools).
+Much like the [npm packages](../npm/README.md), the Azure MCP server is published as a .NET Tool that supports specific platforms. This feature is new as of [.NET 10 preview 6](https://github.com/dotnet/core/blob/main/release-notes/10.0/preview/preview6/sdk.md#platform-specific-net-tools).
 
 To make platform-specific .NET Tools work, it is necessary to publish
 
