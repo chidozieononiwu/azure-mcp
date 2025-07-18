@@ -19,7 +19,7 @@ As long as the application is not using AOT, this single gesture will create all
 The .NET Tools feature does support AOT platform-specific packages (aka setting `<PublishAot>` to true in the project file), but because the .NET Toolchain does not support cross-platform AOT compilation, the individual platform-specific packages must be built on each platform, often through a CI/CD system's ability to matrix across platforms.  In this case, the command to build the platform-specific packages would be
 
 ```
-dotnet pack -r <runtime identfier>
+dotnet pack -r <runtime identifier>
 ```
 
 In most cases, you can rely on the .NET SDK to fill in the appropriate RID for the current host by using
