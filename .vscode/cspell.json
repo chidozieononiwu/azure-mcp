@@ -242,6 +242,7 @@
         "LINUXVMIMAGE",
         "LLM",
         "loadtestrun",
+        "mcpserver",
         "midsole",
         "monitoredresources",
         "msal",
