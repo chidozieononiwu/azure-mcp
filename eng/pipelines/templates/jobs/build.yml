@@ -41,7 +41,8 @@ jobs:
     retryCountOnTaskFailure: 3
     inputs:
       packageType: 'runtime'
-      version: '9.x'
+      version: '9.0.7'
+      includeAspNetCoreRuntime: true
 
   - task: Powershell@2
     displayName: "Build module"
