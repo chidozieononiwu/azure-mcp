@@ -28,7 +28,7 @@
          calling 'dotnet pack'.
          See https://github.com/dotnet/sdk/issues/49799 for details. -->
     <!-- <PackAsTool>true</PackAsTool> -->
-    <!-- Work around p6 bug by only setting the McpServer package type on the top-level wrapper package. 
+    <!-- Work around p6 bug by only setting the McpServer package type on the top-level wrapper package.
          Already fixed in p7. -->
     <PackageType Condition="'$(RuntimeIdentifier)' == ''">McpServer</PackageType>
     <PackageId>Azure.Mcp</PackageId>
@@ -67,7 +67,7 @@
 
   <!-- These items only need to be in the top-level wrapper tool package -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
-    <None Include="../README.md" Pack="true" PackagePath="" />
+    <None Include="../README.dotnet.md" Pack="true" PackagePath="/README.md" />
     <None Include="./server.json" Pack="true" PackagePath=".mcp/" />
   </ItemGroup>
 
@@ -141,7 +141,7 @@
     </ItemGroup>
   </Target>
 
-  
+
   <PropertyGroup>
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
   </PropertyGroup>
