@@ -198,6 +198,7 @@
         "appconfig",
         "apphosts",
         "Autorenewable",
+        "apphosts",
         "azext",
         "azmcp",
         "azqr",
