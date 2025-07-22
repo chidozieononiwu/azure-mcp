@@ -32,18 +32,19 @@ foreach ($packageJson in $packageJsonFiles) {
     Write-Host "Processing $packageJson" -ForegroundColor Yellow
 
     $package = Get-Content $packageJson -Raw | ConvertFrom-Json -AsHashtable
-    $packageDirectory = $packageJson.DirectoryName.Replace('\','/')
+    $npmPackageDirectory = $packageJson.DirectoryName.Replace('\','/')
+    $platformPackagePath = $packageJson.Directory.Parent.FullName.Replace('\', '/')
 
     $os = $package.os[0]
 
-    Write-Host "`nProcessing $os package in $packageDirectory" -ForegroundColor Yellow
+    Write-Host "`nProcessing $os package in $npmPackageDirectory" -ForegroundColor Yellow
     if ($os -eq 'darwin') {
         # Only mac binaries need to be compressed. Linux binaries aren't signed and windows are signed uncompressed. 
         
         # Mac requires code signing the binary with an entitlements file such that the signed and notarized binary will properly invoke on
         # a mac system. However, the `codesign` command is only available on a MacOS agent. With that being the case, we simply special case
         # this function here to ensure that the script does not fail outside of a MacOS agent.
-        $binaryFilePath = "$packageDirectory/dist/azmcp"
+        $binaryFilePath = "$npmPackageDirectory/dist/azmcp"
 
         if ($IsMacOS) {
             Invoke-LoggedCommand "chmod +x `"$binaryFilePath`""
@@ -62,8 +63,8 @@ foreach ($packageJson in $packageJsonFiles) {
         Remove-Item -Path $binaryFilePath -Force -ProgressAction SilentlyContinue
     }
 
-    Write-Host "Copying $packageDirectory to $OutputPath`n" -ForegroundColor Yellow
-    Copy-Item -Path $packageDirectory -Destination $OutputPath -Recurse -Force
+    Write-Host "Copying $platformPackagePath to $OutputPath`n" -ForegroundColor Yellow
+    Copy-Item -Path $platformPackagePath -Destination $OutputPath -Recurse -Force
 }
 
 Write-Host "`n##[group] Output Path Contents:"
