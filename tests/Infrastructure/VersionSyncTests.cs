@@ -1,29 +1,32 @@
-﻿using System.Text.Json;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Xunit;
 
-namespace AzureMcp.Tests.Infra;
+namespace AzureMcp.Tests.Infrastructure;
 
 public class VersionSyncTests
 {
-    private const string _globalJsonFileName = "global.json";
-    private const string _dockerfileFileName = "Dockerfile";
+    private const string GlobalJsonFileName = "global.json";
+    private const string DockerfileFileName = "Dockerfile";
     private static readonly string _repoRoot = GetRepoRoot();
 
     [Fact]
     public void DotNet_Versions_Should_Be_Synchronized_Between_GlobalJson_And_Dockerfile()
     {
         // Arrange
-        var globalJsonPath = Path.Combine(_repoRoot, _globalJsonFileName);
-        var dockerfilePath = Path.Combine(_repoRoot, _dockerfileFileName);
+        var globalJsonPath = Path.Combine(_repoRoot, GlobalJsonFileName);
+        var dockerfilePath = Path.Combine(_repoRoot, DockerfileFileName);
 
         // Act
         var globalJsonSdkVersion = GetDotNetSdkVersionFromGlobalJson(globalJsonPath);
         var dockerfileRuntimeVersion = GetDotNetRuntimeVersionFromDockerfile(dockerfilePath);
 
         // Assert
-        Assert.True(File.Exists(globalJsonPath), $"{_globalJsonFileName} not found at {globalJsonPath}");
-        Assert.True(File.Exists(dockerfilePath), $"{_dockerfileFileName} not found at {dockerfilePath}");
+        Assert.True(File.Exists(globalJsonPath), $"{GlobalJsonFileName} not found at {globalJsonPath}");
+        Assert.True(File.Exists(dockerfilePath), $"{DockerfileFileName} not found at {dockerfilePath}");
         Assert.NotNull(globalJsonSdkVersion);
         Assert.NotNull(dockerfileRuntimeVersion);
 
@@ -31,7 +34,7 @@ public class VersionSyncTests
         var runtimeVersion = new Version(dockerfileRuntimeVersion);
 
         Assert.True(sdkVersion.Major == runtimeVersion.Major && sdkVersion.Minor == runtimeVersion.Minor,
-            $"Major.Minor versions should match between {_globalJsonFileName} SDK ({sdkVersion}) and {_dockerfileFileName} runtime ({runtimeVersion}). " +
+            $"Major.Minor versions should match between {GlobalJsonFileName} SDK ({sdkVersion}) and {DockerfileFileName} runtime ({runtimeVersion}). " +
             $"Found SDK: {sdkVersion.Major}.{sdkVersion.Minor}, Runtime: {runtimeVersion.Major}.{runtimeVersion.Minor}");
     }
 
@@ -52,7 +55,7 @@ public class VersionSyncTests
         return document.RootElement
             .GetProperty("sdk")
             .GetProperty("version")
-            .GetString() ?? throw new InvalidOperationException($"SDK version not found in {_globalJsonFileName}");
+            .GetString() ?? throw new InvalidOperationException($"SDK version not found in {GlobalJsonFileName}");
     }
 
     private static string GetDotNetRuntimeVersionFromDockerfile(string dockerfilePath)
@@ -68,7 +71,7 @@ public class VersionSyncTests
             return match.Groups[1].Value;
         }
 
-        throw new InvalidOperationException($"Could not find .NET runtime version in {_dockerfileFileName} at {dockerfilePath}");
+        throw new InvalidOperationException($"Could not find .NET runtime version in {DockerfileFileName} at {dockerfilePath}");
     }
 
     private static string GetRepoRoot()
