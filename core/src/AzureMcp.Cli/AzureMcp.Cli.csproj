@@ -22,6 +22,8 @@
   </PropertyGroup>
   <!-- .NET Tool Package settings -->
   <PropertyGroup>
+    <!-- Directory.Build.props in this repo sets this to false - but we _want_ to make a package here! -->
+    <IsPackable>true</IsPackable>
     <!-- Bug in 10p6: if this is set to true it prevents 'normal' publishes
          from generating apphosts. Workaround: set -p PackAsTool=true when
          calling 'dotnet pack'.
@@ -34,7 +36,7 @@
     <PackageReadmeFile Condition="'$(RuntimeIdentifier)' == ''">README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>azure;mcp;</PackageTags>
-    <PackageReleaseNotes Condition="'$(RuntimeIdentifier)' == ''">$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)/../CHANGELOG.md').TrimEnd())</PackageReleaseNotes>
+    <PackageReleaseNotes Condition="'$(RuntimeIdentifier)' == ''">$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)/../../../CHANGELOG.md').TrimEnd())</PackageReleaseNotes>
     <ToolCommandName>$(CliName)</ToolCommandName>
     <PackageDescription Condition="'$(RuntimeIdentifier)' == ''">Azure MCP Server - Model Context Protocol implementation for Azure</PackageDescription>
     <PackageDescription Condition="'$(RuntimeIdentifier)' != ''">Azure MCP Server - Model Context Protocol implementation for Azure. Internal implementation package for $(RuntimeIdentifier).</PackageDescription>
@@ -62,10 +64,9 @@
     <PackageReference Include="ModelContextProtocol" />
     <PackageReference Include="System.CommandLine" />
   </ItemGroup>
-  <ItemGroup>
   <!-- These items only need to be in the top-level wrapper tool package -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
-    <None Include="../../README.dotnet.md" Pack="true" PackagePath="" />
+    <None Include="../../../README.dotnet.md" Pack="true" PackagePath="./README.md" />
   </ItemGroup>
 
   <!-- Remove Cosmos native files from the build output directory -->
