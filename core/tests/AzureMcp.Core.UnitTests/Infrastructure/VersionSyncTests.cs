@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Xunit;
 
-namespace AzureMcp.Tests.Infrastructure;
+namespace AzureMcp.Core.UnitTests.Infrastructure;
 
 public class VersionSyncTests
 {
@@ -42,16 +42,15 @@ public class VersionSyncTests
     {
         var jsonContent = File.ReadAllText(globalJsonPath);
 
-        // Remove comments from JSON
-        var lines = jsonContent.Split('\n');
-        var cleanedLines = lines.Select(line =>
-        {
-            var commentIndex = line.IndexOf("//", StringComparison.Ordinal);
-            return commentIndex >= 0 ? line[..commentIndex] : line;
-        });
-        var cleanedJson = string.Join('\n', cleanedLines);
+        var document = JsonDocument.Parse(
+            jsonContent,
+            new JsonDocumentOptions
+            {
+                AllowTrailingCommas = true,
+                CommentHandling = JsonCommentHandling.Skip
+            }
+        );
 
-        var document = JsonDocument.Parse(cleanedJson);
         return document.RootElement
             .GetProperty("sdk")
             .GetProperty("version")
