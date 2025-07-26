@@ -66,7 +66,9 @@
   </ItemGroup>
   <!-- These items only need to be in the top-level wrapper tool package -->
   <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
-    <None Include="../../../README.dotnet.md" Pack="true" PackagePath="./README.md" />
+    <!-- TODO: Change the content of the README automatically to point to dnx-based usages and package names? 
+               Could use the target below that templates the mcp server.json as a guideline. -->
+    <None Include="../../../README.md" Pack="true" PackagePath="./README.md" />
   </ItemGroup>
 
   <!-- Remove Cosmos native files from the build output directory -->
