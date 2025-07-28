@@ -1,6 +1,7 @@
 {
     "sdk": {
-        // Keep this version in sync with the .NET SDK version used in the Dockerfile
-        "version": "10.0.100-preview.6.25358.103"
+        // Keep the SDK (Major and Minor) version in sync with the .NET runtime version used in the Dockerfile
+        "version": "9.0.300",
+        "rollForward": "feature"
     }
 }
