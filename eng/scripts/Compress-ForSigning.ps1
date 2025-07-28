@@ -24,11 +24,10 @@ foreach ($artifactDirectory in $artifactDirectories) {
     Write-Host "`n##[group] Artifact directory '$artifactDirectory' contents:"
     Get-ChildItem -Path $artifactDirectory -File -Recurse | Select-Object -ExpandProperty FullName | Out-Host
     Write-Host "##[endgroup]`n"
-}
 
-$packageJsonFiles = $artifactDirectories | Get-ChildItem -Filter "package.json" -Recurse
+    $os_arch = $artifactDirectory.Name -replace "$ArtifactPrefix", ''
+    $packageJson = $artifactDirectory | Get-ChildItem -Filter "package.json" -Recurse
 
-foreach ($packageJson in $packageJsonFiles) {
     Write-Host "Processing $packageJson" -ForegroundColor Yellow
 
     $package = Get-Content $packageJson -Raw | ConvertFrom-Json -AsHashtable
@@ -62,8 +61,12 @@ foreach ($packageJson in $packageJsonFiles) {
         Remove-Item -Path $binaryFilePath -Force -ProgressAction SilentlyContinue
     }
 
-    Write-Host "Copying $packageDirectory to $OutputPath`n" -ForegroundColor Yellow
-    Copy-Item -Path $packageDirectory -Destination $OutputPath -Recurse -Force
+    $destinationPath = Join-Path $OutputPath $os_arch
+    $sourcePath = Join-Path $packageDirectory '*'
+    New-Item -ItemType Directory -Force -Path $destinationPath | Out-Null
+
+    Write-Host "Copying $sourcePath to $destinationPath`n" -ForegroundColor Yellow
+    Copy-Item -Path $sourcePath -Destination $destinationPath -Recurse -Force
 }
 
 Write-Host "`n##[group] Output Path Contents:"

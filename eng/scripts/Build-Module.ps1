@@ -63,34 +63,38 @@ try {
     }
 
 
-    $outputDir = "$OutputPath/$os-$arch"
-    Write-Host "Building version $Version, $os-$arch in $outputDir" -ForegroundColor Green
+    $outputDirNpm = "$OutputPath/npm"
+    $outputDirNuget = "$OutputPath/nuget"
+    Write-Host "Building version $Version, $os-$arch in $outputDirNpm" -ForegroundColor Green
 
     # Clear and recreate the package output directory
-    Remove-Item -Path $outputDir -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
-    New-Item -Path "$outputDir/dist" -ItemType Directory -Force | Out-Null
+    Remove-Item -Path $outputDirNpm -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
+    Remove-Item -Path $outputDirNuget -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
+    New-Item -Path "$outputDirNpm/dist" -ItemType Directory -Force | Out-Null
 
     # Copy the platform package files to the output directory
-    Copy-Item -Path "$npmPackagePath/*" -Recurse -Destination $outputDir -Force
+    Copy-Item -Path "$npmPackagePath/*" -Recurse -Destination $outputDirNpm -Force
 
     $configuration = if ($DebugBuild) { 'Debug' } else { 'Release' }
-    $command = "dotnet publish '$projectFile' --runtime '$os-$arch' --output '$outputDir/dist' /p:Version=$Version /p:Configuration=$configuration"
+    $publishCommand = "dotnet publish '$projectFile' --runtime '$os-$arch' --output '$outputDirNpm/dist' /p:Version=$Version /p:Configuration=$configuration"
+    $packCommand = "dotnet pack '$projectFile' --runtime '$os-$arch' --output '$outputDirNuget' /p:Version=$Version /p:Configuration=$configuration"
 
     if($SelfContained) {
-        $command += " --self-contained"
+        $publishCommand += " --self-contained"
     }
 
     if($ReadyToRun) {
-        $command += " /p:PublishReadyToRun=true"
+        $publishCommand += " /p:PublishReadyToRun=true"
     }
 
     if($Trimmed) {
-        $command += " /p:PublishTrimmed=true"
+        $publishCommand += " /p:PublishTrimmed=true"
     }
 
-    Invoke-LoggedCommand $command -GroupOutput
+    Invoke-LoggedCommand $publishCommand -GroupOutput
+    Invoke-LoggedCommand $packCommand -GroupOutput
 
-    $package = Get-Content "$outputDir/package.json" -Raw
+    $package = Get-Content "$outputDirNpm/package.json" -Raw
     $package = $package.Replace('{os}', $node_os)
     $package = $package.Replace('{cpu}', $arch)
     $package = $package.Replace('{version}', $Version)
@@ -103,9 +107,9 @@ try {
     }
 
     $package
-    | Out-File -FilePath "$outputDir/package.json" -Encoding utf8
+    | Out-File -FilePath "$outputDirNpm/package.json" -Encoding utf8
 
-    Write-Host "Updated package.json in $outputDir" -ForegroundColor Yellow
+    Write-Host "Updated package.json in $outputDirNpm" -ForegroundColor Yellow
 
     Write-Host "`nBuild completed successfully!" -ForegroundColor Green
 }
