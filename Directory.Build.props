@@ -11,5 +11,10 @@
     <IsPackable>False</IsPackable>
     <!-- Suppress SYSLIB0020 for generated System.Text.Json code that uses obsolete IgnoreNullValues -->
     <NoWarn>$(NoWarn);SYSLIB0020</NoWarn>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition="'$(PublicSign)' == ''">true</PublicSign>
+    <DelaySign Condition="'$(PublicSign)' == 'true'">false</DelaySign>
+    <DelaySign Condition="'$(PublicSign)' != 'true'">true</DelaySign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)AzureMcpKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 </Project>
