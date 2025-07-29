@@ -10,8 +10,9 @@ using AzureMcp.Core.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Xunit;
-using static AzureMcp.AppConfig.Models.KeyValueSetting;
+using static AzureMcp.AppConfig.Commands.KeyValue.KeyValueSetCommand;
 
 namespace AzureMcp.AppConfig.UnitTests.KeyValue;
 
@@ -64,7 +65,7 @@ public class KeyValueSetCommandTests
             null);
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueResult>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueSetCommandResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -101,7 +102,7 @@ public class KeyValueSetCommandTests
             "prod");
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueResult>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueSetCommandResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -124,7 +125,7 @@ public class KeyValueSetCommandTests
             Arg.Any<string>(),
             Arg.Any<RetryPolicyOptions>(),
             Arg.Any<string>())
-            .Returns(Task.FromException<KeyValueResult>(new Exception("Failed to set key-value")));
+            .ThrowsAsync(new Exception("Failed to set key-value"));
 
         var args = _parser.Parse([
             "--subscription", "sub123",

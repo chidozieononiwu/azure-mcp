@@ -23,5 +23,4 @@ public class AppConfigurationAccount
 
     // Full encryption properties
     public EncryptionProperties? Encryption { get; set; }
-    internal record AppConfigurationAccountList(IReadOnlyList<AppConfigurationAccount> Accounts);
 }

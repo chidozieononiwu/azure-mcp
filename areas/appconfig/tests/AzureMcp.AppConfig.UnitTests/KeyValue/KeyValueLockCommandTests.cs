@@ -10,8 +10,9 @@ using AzureMcp.Core.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Xunit;
-using static AzureMcp.AppConfig.Models.KeyValueSetting;
+using static AzureMcp.AppConfig.Commands.KeyValue.KeyValueLockCommand;
 
 namespace AzureMcp.AppConfig.UnitTests.KeyValue;
 
@@ -62,7 +63,7 @@ public class KeyValueLockCommandTests
             null);
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueResult>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueLockCommandResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -96,7 +97,7 @@ public class KeyValueLockCommandTests
             "prod");
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueResult>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueLockCommandResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -117,7 +118,7 @@ public class KeyValueLockCommandTests
             Arg.Any<string>(),
             Arg.Any<RetryPolicyOptions>(),
             Arg.Any<string>())
-            .Returns(Task.FromException<KeyValueSettingsCollection>(new Exception("Failed to lock key-value")));
+            .ThrowsAsync(new Exception("Failed to lock key-value"));
 
         var args = _parser.Parse([
             "--subscription", "sub123",

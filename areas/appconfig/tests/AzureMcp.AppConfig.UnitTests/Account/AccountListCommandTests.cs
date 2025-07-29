@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using Xunit;
+using static AzureMcp.AppConfig.Commands.Account.AccountListCommand;
 
 namespace AzureMcp.AppConfig.UnitTests.Account;
 
@@ -64,7 +65,7 @@ public class AccountListCommandTests
         Assert.NotNull(response.Results);
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<AppConfigurationAccount.AppConfigurationAccountList>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<AccountListCommandResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });

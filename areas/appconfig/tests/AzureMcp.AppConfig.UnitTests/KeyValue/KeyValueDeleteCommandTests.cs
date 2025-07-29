@@ -10,8 +10,9 @@ using AzureMcp.Core.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Xunit;
-using static AzureMcp.AppConfig.Models.KeyValueSetting;
+using static AzureMcp.AppConfig.Commands.KeyValue.KeyValueDeleteCommand;
 
 namespace AzureMcp.AppConfig.UnitTests.KeyValue;
 
@@ -62,7 +63,7 @@ public class KeyValueDeleteCommandTests
             null);
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueResult>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueDeleteCommandResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -95,7 +96,7 @@ public class KeyValueDeleteCommandTests
             "prod");
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueResult>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueDeleteCommandResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -116,7 +117,7 @@ public class KeyValueDeleteCommandTests
             Arg.Any<string>(),
             Arg.Any<RetryPolicyOptions>(),
             Arg.Any<string>())
-            .Returns(Task.FromException<bool>(new Exception("Failed to delete key-value")));
+            .ThrowsAsync(new Exception("Failed to delete key-value"));
 
         var args = _parser.Parse([
             "--subscription", "sub123",

@@ -11,8 +11,9 @@ using AzureMcp.Core.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Xunit;
-using static AzureMcp.AppConfig.Models.KeyValueSetting;
+using static AzureMcp.AppConfig.Commands.KeyValue.KeyValueListCommand;
 
 namespace AzureMcp.AppConfig.UnitTests.KeyValue;
 
@@ -67,7 +68,7 @@ public class KeyValueListCommandTests
         Assert.NotNull(response.Results);
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueSettingsCollection>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueListCommandResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -105,7 +106,7 @@ public class KeyValueListCommandTests
         Assert.NotNull(response.Results);
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueSettingsCollection>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueListCommandResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -144,7 +145,7 @@ public class KeyValueListCommandTests
         Assert.NotNull(response.Results);
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueSettingsCollection>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueListCommandResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -166,7 +167,7 @@ public class KeyValueListCommandTests
             Arg.Any<string>(),
             Arg.Any<string>(),
             Arg.Any<RetryPolicyOptions>())
-            .Returns(Task.FromException<List<KeyValueSetting>>(new Exception("Service error")));
+            .ThrowsAsync(new Exception("Service error"));
 
         var args = _parser.Parse(["--subscription", "sub123", "--account-name", "account1"]);
 

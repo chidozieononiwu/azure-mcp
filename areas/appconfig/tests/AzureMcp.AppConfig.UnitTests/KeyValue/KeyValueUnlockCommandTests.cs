@@ -4,15 +4,15 @@
 using System.CommandLine.Parsing;
 using System.Text.Json;
 using AzureMcp.AppConfig.Commands.KeyValue;
-using AzureMcp.AppConfig.Models;
 using AzureMcp.AppConfig.Services;
 using AzureMcp.Core.Models.Command;
 using AzureMcp.Core.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Xunit;
-using static AzureMcp.AppConfig.Models.KeyValueSetting;
+using static AzureMcp.AppConfig.Commands.KeyValue.KeyValueUnlockCommand;
 
 namespace AzureMcp.AppConfig.UnitTests.KeyValue;
 
@@ -62,7 +62,7 @@ public class KeyValueUnlockCommandTests
             Arg.Any<RetryPolicyOptions>(),
             null);
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueResult>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueUnlockResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -95,7 +95,7 @@ public class KeyValueUnlockCommandTests
             Arg.Any<RetryPolicyOptions>(),
             "prod");
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueResult>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueUnlockResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -116,7 +116,7 @@ public class KeyValueUnlockCommandTests
             Arg.Any<string>(),
             Arg.Any<RetryPolicyOptions>(),
             Arg.Any<string>())
-            .Returns(Task.FromException<KeyValueSetting>(new Exception("Failed to unlock key-value")));
+            .ThrowsAsync(new Exception("Failed to unlock key-value"));
 
         var args = _parser.Parse([
             "--subscription", "sub123",

@@ -11,8 +11,9 @@ using AzureMcp.Core.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Xunit;
-using static AzureMcp.AppConfig.Models.KeyValueSetting;
+using static AzureMcp.AppConfig.Commands.KeyValue.KeyValueShowCommand;
 
 namespace AzureMcp.AppConfig.UnitTests.KeyValue;
 
@@ -75,7 +76,7 @@ public class KeyValueShowCommandTests
         Assert.NotNull(response.Results);
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueSettingsResult>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueShowResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -121,7 +122,7 @@ public class KeyValueShowCommandTests
         Assert.NotNull(response.Results);
 
         var json = JsonSerializer.Serialize(response.Results);
-        var result = JsonSerializer.Deserialize<KeyValueSettingsResult>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<KeyValueShowResult>(json, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
@@ -142,7 +143,7 @@ public class KeyValueShowCommandTests
             Arg.Any<string>(),
             Arg.Any<RetryPolicyOptions>(),
             Arg.Any<string>())
-            .Returns(Task.FromException<KeyValueSetting>(new Exception("Setting not found")));
+            .ThrowsAsync(new Exception("Setting not found"));
 
         var args = _parser.Parse([
             "--subscription", "sub123",
