@@ -84,15 +84,6 @@
     <PackageReference Include="ModelContextProtocol" />
     <PackageReference Include="System.CommandLine" />
   </ItemGroup>
-<<<<<<< HEAD
-=======
-  <!-- These items only need to be in the top-level wrapper tool package -->
-  <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
-    <!-- TODO: Change the content of the README automatically to point to dnx-based usages and package names? 
-               Could use the target below that templates the mcp server.json as a guideline. -->
-    <None Include="../../../README.md" Pack="true" PackagePath="./README.md" />
-  </ItemGroup>
->>>>>>> a3553b93 (minor fixes after rebase)
 
   <!-- Remove non-AOT safe projects and packages when building native -->
   <!-- https://github.com/Azure/azure-mcp-pr/issues/318 -->
