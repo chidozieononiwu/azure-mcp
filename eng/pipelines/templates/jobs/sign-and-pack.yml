@@ -90,6 +90,7 @@ jobs:
 
   steps:
   - checkout: self
+    path: s
 
   - checkout: azure-sdk-build-tools
     path: azure-sdk-build-tools

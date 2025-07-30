@@ -11,5 +11,7 @@
     <IsPackable>False</IsPackable>
     <!-- Suppress SYSLIB0020 for generated System.Text.Json code that uses obsolete IgnoreNullValues -->
     <NoWarn>$(NoWarn);SYSLIB0020</NoWarn>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)AzureMcpKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 </Project>
