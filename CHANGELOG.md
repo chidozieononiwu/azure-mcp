@@ -6,6 +6,8 @@ The Azure MCP Server updates automatically by default whenever a new release com
 
 ### Features Added
 
+- Added support for providing the `--content-type` and `--tags` properties to the `azmcp-appconfig-kv-set` command. [[#459](https://github.com/Azure/azure-mcp/pull/459)]
+
 ### Breaking Changes
 
 ### Bugs Fixed
