@@ -6,6 +6,7 @@ param(
     [string] $OutputPath,
     [string] $Version,
     [switch] $SelfContained,
+    [switch] $NugetAgnostic,
     [switch] $ReadyToRun,
     [switch] $Trimmed,
     [switch] $DebugBuild,
@@ -62,56 +63,69 @@ try {
         default { $node_os = $os; $extension = '' }
     }
 
+    if ($NugetAgnostic) {
+        $outputDirNuget = "$OutputPath/nuget"
+        Write-Host "Building agnostic package in $outputDirNuget" -ForegroundColor Green
 
-    $outputDirNpm = "$OutputPath/npm"
-    $outputDirNuget = "$OutputPath/nuget"
-    Write-Host "Building version $Version, $os-$arch in $outputDirNpm" -ForegroundColor Green
+        Remove-Item -Path $outputDirNuget -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
+        New-Item -Path $outputDirNuget -ItemType Directory -Force | Out-Null
+        
+        $packCommand = "dotnet pack '$projectFile' --output '$outputDirNuget' /p:Version=$Version /p:Configuration=$configuration"
 
-    # Clear and recreate the package output directory
-    Remove-Item -Path $outputDirNpm -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
-    Remove-Item -Path $outputDirNuget -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
-    New-Item -Path "$outputDirNpm/dist" -ItemType Directory -Force | Out-Null
-
-    # Copy the platform package files to the output directory
-    Copy-Item -Path "$npmPackagePath/*" -Recurse -Destination $outputDirNpm -Force
-
-    $configuration = if ($DebugBuild) { 'Debug' } else { 'Release' }
-    $publishCommand = "dotnet publish '$projectFile' --runtime '$os-$arch' --output '$outputDirNpm/dist' /p:Version=$Version /p:Configuration=$configuration"
-    $packCommand = "dotnet pack '$projectFile' --runtime '$os-$arch' --output '$outputDirNuget' /p:Version=$Version /p:Configuration=$configuration"
-
-    if($SelfContained) {
-        $publishCommand += " --self-contained"
+        Invoke-LoggedCommand $packCommand -GroupOutput
     }
+    else {
+        $outputDirNpm = "$OutputPath/npm"
+        $outputDirNuget = "$OutputPath/nuget"
+        Write-Host "Building version $Version, $os-$arch in $outputDirNpm" -ForegroundColor Green
 
-    if($ReadyToRun) {
-        $publishCommand += " /p:PublishReadyToRun=true"
+        # Clear and recreate the package output directory
+        Remove-Item -Path $outputDirNpm -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
+        Remove-Item -Path $outputDirNuget -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
+        New-Item -Path "$outputDirNpm/dist" -ItemType Directory -Force | Out-Null
+        New-Item -Path $outputDirNuget -ItemType Directory -Force | Out-Null
+
+        # Copy the platform package files to the output directory
+        Copy-Item -Path "$npmPackagePath/*" -Recurse -Destination $outputDirNpm -Force
+
+        $configuration = if ($DebugBuild) { 'Debug' } else { 'Release' }
+        $publishCommand = "dotnet publish '$projectFile' --runtime '$os-$arch' --output '$outputDirNpm/dist' /p:Version=$Version /p:Configuration=$configuration"
+        $packCommand = "dotnet pack '$projectFile' --runtime '$os-$arch' --output '$outputDirNuget' /p:Version=$Version /p:Configuration=$configuration"
+
+        if($SelfContained) {
+            $publishCommand += " --self-contained"
+        }
+
+        if($ReadyToRun) {
+            $publishCommand += " /p:PublishReadyToRun=true"
+        }
+
+        if($Trimmed) {
+            $publishCommand += " /p:PublishTrimmed=true"
+        }
+
+        Invoke-LoggedCommand $publishCommand -GroupOutput
+        Invoke-LoggedCommand $packCommand -GroupOutput
+
+        $package = Get-Content "$outputDirNpm/package.json" -Raw
+        $package = $package.Replace('{os}', $node_os)
+        $package = $package.Replace('{cpu}', $arch)
+        $package = $package.Replace('{version}', $Version)
+        $package = $package.Replace('{executable}', "azmcp$extension")
+
+        # confirm all the placeholders are replaced
+        if ($package -match '\{\w+\}') {
+            Write-Error "Failed to replace $($Matches[0]) in package.json"
+            return
+        }
+
+        $package
+        | Out-File -FilePath "$outputDirNpm/package.json" -Encoding utf8
+
+        Write-Host "Updated package.json in $outputDirNpm" -ForegroundColor Yellow
+
+        Write-Host "`nBuild completed successfully!" -ForegroundColor Green
     }
-
-    if($Trimmed) {
-        $publishCommand += " /p:PublishTrimmed=true"
-    }
-
-    Invoke-LoggedCommand $publishCommand -GroupOutput
-    Invoke-LoggedCommand $packCommand -GroupOutput
-
-    $package = Get-Content "$outputDirNpm/package.json" -Raw
-    $package = $package.Replace('{os}', $node_os)
-    $package = $package.Replace('{cpu}', $arch)
-    $package = $package.Replace('{version}', $Version)
-    $package = $package.Replace('{executable}', "azmcp$extension")
-
-    # confirm all the placeholders are replaced
-    if ($package -match '\{\w+\}') {
-        Write-Error "Failed to replace $($Matches[0]) in package.json"
-        return
-    }
-
-    $package
-    | Out-File -FilePath "$outputDirNpm/package.json" -Encoding utf8
-
-    Write-Host "Updated package.json in $outputDirNpm" -ForegroundColor Yellow
-
-    Write-Host "`nBuild completed successfully!" -ForegroundColor Green
 }
 finally {
     Pop-Location
