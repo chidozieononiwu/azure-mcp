@@ -2,9 +2,6 @@ parameters:
 - name: TimeoutInMinutes
   type: number
   default: 120
-- name: SkipSigning
-  type: boolean
-  default: false
 
 jobs:
 - job: SignAndPackNPM
@@ -14,7 +11,7 @@ jobs:
     displayName: "Sign and Pack npm packages"
   condition: and(succeededOrFailed(), ne(variables['Skip.Analyze'], 'true'))
   timeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
-  pool:
+  pool: # Binary signing of mac bits needs to happen on mac see https://github.com/Azure/azure-mcp/blob/4ff032fafc77bc618738879b7028665c0de2e632/eng/scripts/Compress-ForSigning.ps1#L40
     name: $(MACPOOL)
     vmImage: $(MACVMIMAGE)
     os: macos
