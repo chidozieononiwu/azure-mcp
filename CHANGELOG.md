@@ -10,6 +10,11 @@ The Azure MCP Server updates automatically by default whenever a new release com
 - Added `filter-path` and `recursive` capabilities to `azmcp-storage-datalake-file-system-list-paths`. [[#770](https://github.com/Azure/azure-mcp/issues/770)]
 
 
+- Added support for Azure Virtual Desktop with new commands:
+  - `azmcp-virtualdesktop-hostpool-list` - List all host pools in a subscription
+  - `azmcp-virtualdesktop-sessionhost-list` - List all session hosts in a host pool
+  - `azmcp-virtualdesktop-sessionhost-usersession-list` - List all user sessions on a specific session host
+
 ### Breaking Changes
 
 - **Parameter Name Changes**: Removed unnecessary "-name" suffixes from command parameters across 25+ parameters in 12+ Azure service areas to improve consistency and usability. Users will need to update their command-line usage and scripts. [[#853](https://github.com/Azure/azure-mcp/pull/853)]
