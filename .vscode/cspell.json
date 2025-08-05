@@ -158,6 +158,7 @@
                 "testproxy",
                 "testrg",
                 "testserver",
+                "testshare",
                 "testsub",
                 "testfilesystem",
                 "toplevel",
