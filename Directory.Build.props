@@ -10,5 +10,9 @@
     <NoWarn>$(NoWarn);SYSLIB0020</NoWarn>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)AzureMcpKey.snk</AssemblyOriginatorKeyFile>
+    <BuildNative Condition="'$(BuildNative)' == ''">false</BuildNative>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(BuildNative)' == 'true'">
+    <DefineConstants>$(DefineConstants);AOT_COMPATIBLE_ONLY</DefineConstants>
   </PropertyGroup>
 </Project>

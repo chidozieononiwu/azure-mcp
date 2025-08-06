@@ -10,6 +10,7 @@ param(
     [switch] $ReadyToRun,
     [switch] $Trimmed,
     [switch] $DebugBuild,
+    [switch] $BuildNative,
     [Parameter(Mandatory=$true, ParameterSetName='Named')]
     [ValidateSet('windows','linux','macOS')]
     [string] $OperatingSystem,
