@@ -12,6 +12,7 @@
     <PublishTrimmed>false</PublishTrimmed>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <DebugType>embedded</DebugType>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
   <PropertyGroup>
     <!-- AOT compilation flags -->
@@ -126,6 +127,7 @@
     <ItemGroup>
       <None Include="$(_UpdatedServerJsonPath)" Pack="true" PackagePath="/.mcp/server.json" />
     </ItemGroup>
-    
   </Target>
 </Project>
+
+

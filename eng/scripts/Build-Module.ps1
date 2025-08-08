@@ -70,27 +70,31 @@ try {
         Remove-Item -Path $outputDirNuget -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
         New-Item -Path $outputDirNuget -ItemType Directory -Force | Out-Null
         
-        $packCommand = "dotnet pack '$projectFile' --output '$outputDirNuget' /p:Version=$Version /p:Configuration=$configuration"
-
+        $packCommand = "dotnet pack '$projectFile' --output '$outputDirNuget' /p:ToolType=aot /p:Version=$Version /p:Configuration=$configuration /p:PackAsTool=true"
         Invoke-LoggedCommand $packCommand -GroupOutput
+        # Keep only the .nupkg file with the shortest name (entry-point package)
+        $allPkgs = Get-ChildItem -Path $outputDirNuget -Filter "*.nupkg"
+        $shortest = $allPkgs | Sort-Object { $_.Name.Length } | Select-Object -First 1
+        $allPkgs | Where-Object { $_.FullName -ne $shortest.FullName } | Remove-Item -Force
     }
     else {
-        $outputDirNpm = "$OutputPath/npm"
-        $outputDirNuget = "$OutputPath/nuget"
+        $outputDirNpm = Join-Path $OutputPath "npm"
+        $outputDirDist = Join-Path $outputDirNpm "dist"
+        $outputDirNuget = Join-Path $OutputPath "nuget"
         Write-Host "Building version $Version, $os-$arch in $outputDirNpm" -ForegroundColor Green
 
         # Clear and recreate the package output directory
         Remove-Item -Path $outputDirNpm -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
         Remove-Item -Path $outputDirNuget -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
-        New-Item -Path "$outputDirNpm/dist" -ItemType Directory -Force | Out-Null
+        New-Item -Path $outputDirDist -ItemType Directory -Force | Out-Null
         New-Item -Path $outputDirNuget -ItemType Directory -Force | Out-Null
 
         # Copy the platform package files to the output directory
         Copy-Item -Path "$npmPackagePath/*" -Recurse -Destination $outputDirNpm -Force
 
         $configuration = if ($DebugBuild) { 'Debug' } else { 'Release' }
-        $publishCommand = "dotnet publish '$projectFile' --runtime '$os-$arch' --output '$outputDirNpm/dist' /p:Version=$Version /p:Configuration=$configuration"
-        $packCommand = "dotnet pack '$projectFile' --runtime '$os-$arch' --output '$outputDirNuget' /p:Version=$Version /p:Configuration=$configuration"
+        $publishCommand = "dotnet publish '$projectFile' --runtime '$os-$arch' --output '$outputDirDist' /p:Version=$Version /p:Configuration=$configuration"
+        $packCommand = "dotnet pack '$projectFile' --runtime '$os-$arch' --output '$outputDirNuget' /p:ToolType=aot /p:Version=$Version /p:Configuration=$configuration /p:PackAsTool=true /p:PublishSingleFile=true /p:SelfContained=true"
 
         if($SelfContained) {
             $publishCommand += " --self-contained"
