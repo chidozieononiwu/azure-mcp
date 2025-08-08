@@ -8,6 +8,8 @@
 
 ### Bugs Fixed
 
+- Fixed best practice tool invocation failure when passing "all" action with "general" or "azurefunctions" resources, by adding that support. [[#757](https://github.com/Azure/azure-mcp/issues/757)]
+
 ### Other Changes
 
 ## 0.5.4 (2025-08-07)
