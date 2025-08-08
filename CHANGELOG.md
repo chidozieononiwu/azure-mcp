@@ -6,6 +6,11 @@
 
 ### Breaking Changes
 
+- Storage: `azmcp-storage-account-list` now returns account metadata objects instead of plain strings. Each item includes:
+  `name`, `location`, `kind`, `skuName`, `skuTier`, `hnsEnabled`, `allowBlobPublicAccess`, `enableHttpsTrafficOnly`.
+  If you parsed an array of strings before, update your scripts to read the `name` property. The underlying
+  IStorageService `GetStorageAccounts` signature changed from `Task<List<string>>` to `Task<List<StorageAccountInfo>>`.
+
 ### Bugs Fixed
 
 - Fixed best practice tool invocation failure when passing "all" action with "general" or "azurefunctions" resources, by adding that support. [[#757](https://github.com/Azure/azure-mcp/issues/757)]
