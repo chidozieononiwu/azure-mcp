@@ -10,6 +10,7 @@ param(
     [switch] $ReadyToRun,
     [switch] $Trimmed,
     [switch] $DebugBuild,
+    [switch] $CleanBuild,
     [switch] $BuildNative,
     [Parameter(Mandatory=$true, ParameterSetName='Named')]
     [ValidateSet('windows','linux','macOS')]
@@ -25,7 +26,8 @@ $ErrorActionPreference = 'Stop'
 $RepoRoot = $RepoRoot.Path.Replace('\', '/')
 
 $npmPackagePath = "$RepoRoot/eng/npm/platform"
-$projectFile = "$RepoRoot/core/src/AzureMcp.Cli/AzureMcp.Cli.csproj"
+$projectDir = "$RepoRoot/core/src/AzureMcp.Cli"
+$projectFile = "$projectDir/AzureMcp.Cli.csproj"
 
 if(!$Version) {
     $Version = & "$PSScriptRoot/Get-Version.ps1"
@@ -86,6 +88,13 @@ try {
         $outputDirNuget = Join-Path $OutputPath "nuget"
         Write-Host "Building version $Version, $os-$arch in $outputDirNpm" -ForegroundColor Green
 
+        $configuration = if ($DebugBuild) { 'Debug' } else { 'Release' }
+        
+        if ($CleanBuild) {
+            # Clean up any previous azmcp build artifacts.
+            Invoke-LoggedCommand "dotnet clean '$projectFile' --configuration $configuration" -GroupOutput
+        }
+
         # Clear and recreate the package output directory
         Remove-Item -Path $outputDirNpm -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
         Remove-Item -Path $outputDirNuget -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
@@ -95,7 +104,6 @@ try {
         # Copy the platform package files to the output directory
         Copy-Item -Path "$npmPackagePath/*" -Recurse -Destination $outputDirNpm -Force
 
-        $configuration = if ($DebugBuild) { 'Debug' } else { 'Release' }
         $publishCommand = "dotnet publish '$projectFile' --runtime '$os-$arch' --output '$outputDirDist' /p:Version=$Version /p:Configuration=$configuration"
         $packCommand = "dotnet pack '$projectFile' --runtime '$os-$arch' --output '$outputDirNuget' /p:ToolType=aot /p:Version=$Version /p:Configuration=$configuration /p:PackAsTool=true /p:PublishSingleFile=true /p:SelfContained=true"
 
