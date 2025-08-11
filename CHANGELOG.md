@@ -4,6 +4,8 @@
 
 ### Features Added
 
+- Added support for sending messages to Azure Storage queues via the `azmcp-storage-queue-message-send` command. This command enables asynchronous messaging by adding messages to storage queues with configurable time-to-live and visibility timeout settings. [[#794](https://github.com/Azure/azure-mcp/pull/794)]
+
 ### Breaking Changes
 
 - Storage: `azmcp-storage-account-list` now returns account metadata objects instead of plain strings. Each item includes:
