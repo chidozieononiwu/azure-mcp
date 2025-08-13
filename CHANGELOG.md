@@ -21,6 +21,7 @@ The Azure MCP Server updates automatically by default whenever a new release com
 - Added support for listing ACR (Azure Container Registry) registries in a subscription via the command `azmcp-acr-registry-list`. [[#915](https://github.com/Azure/azure-mcp/issues/915)]
 - Added the following Azure Storage commands:
   - `azmcp-storage-account-create`: Create a new Azure Storage account. [[#927](https://github.com/Azure/azure-mcp/issues/927)]
+  - `azmcp-storage-account-details` Get details about an Azure Storage Account. [[#934](https://github.com/Azure/azure-mcp/issues/934)]
   - `azmcp-storage-queue-message-send`: Send a message to an Azure Storage queue. [[#794](https://github.com/Azure/azure-mcp/pull/794)]
   - `azmcp-storage-blob-details`: Get details about an Azure Storage blob. [[#930](https://github.com/Azure/azure-mcp/issues/930)]
   - `azmcp-storage-blob-container-create`: Create a new Azure Storage blob container. [[#937](https://github.com/Azure/azure-mcp/issues/937)]
