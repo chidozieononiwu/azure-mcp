@@ -14,6 +14,8 @@ The Azure MCP Server updates automatically by default whenever a new release com
 
 ### Other Changes
 
+- Refactored resource group option handling: introduced single global parser-optional `--resource-group` with declarative helpers `UseResourceGroup()` / `RequireResourceGroup()` and centralized logical validation & binding. Removed all area-specific optional resource group option definitions and manual per-command bindings; updated documentation to reflect new pattern.
+
 ## 0.5.5 (2025-08-12)
 
 ### Features Added
@@ -36,7 +38,6 @@ The Azure MCP Server updates automatically by default whenever a new release com
 - Updated metadata for CREATE and SET tools to `destructive = true`. [[#773](https://github.com/Azure/azure-mcp/pull/773)]
 
 ### Other Changes
-
 - Consolidate "AzSubscriptionGuid" telemetry logic into `McpRuntime`. [[#935](https://github.com/Azure/azure-mcp/pull/935)]
 
 ## 0.5.4 (2025-08-07)
