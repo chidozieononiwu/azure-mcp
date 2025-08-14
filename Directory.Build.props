@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <Version>0.5.1</Version>
+    <Version>0.5.6</Version>
     <!-- When this changes, the .NET runtime installation
          at https://github.com/Azure/azure-mcp/blob/e98c1919a25cc1e4e9325446d0ff7aec098fca67/eng/pipelines/templates/jobs/build.yml#L39
          may need to be updated. -->
@@ -13,5 +13,9 @@
     <IsPackable>False</IsPackable>
     <!-- Suppress SYSLIB0020 for generated System.Text.Json code that uses obsolete IgnoreNullValues -->
     <NoWarn>$(NoWarn);SYSLIB0020</NoWarn>
+    <BuildNative Condition="'$(BuildNative)' == ''">false</BuildNative>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(BuildNative)' == 'true'">
+    <DefineConstants>$(DefineConstants);BUILD_NATIVE</DefineConstants>
   </PropertyGroup>
 </Project>

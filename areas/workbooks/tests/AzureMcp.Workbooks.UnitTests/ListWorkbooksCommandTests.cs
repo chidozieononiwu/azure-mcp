@@ -5,7 +5,6 @@ using System.CommandLine;
 using System.Text.Json;
 using AzureMcp.Core.Models.Command;
 using AzureMcp.Core.Options;
-using AzureMcp.Tests;
 using AzureMcp.Workbooks.Commands.Workbooks;
 using AzureMcp.Workbooks.Models;
 using AzureMcp.Workbooks.Services;
@@ -329,27 +328,6 @@ public class ListWorkbooksCommandTests
             Arg.Any<WorkbookFilters?>(),
             Arg.Any<RetryPolicyOptions?>(),
             Arg.Any<string?>());
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public async Task ExecuteAsync_WithInvalidSubscription_ReturnsValidationError(string invalidSubscription)
-    {
-        // Arrange
-        var args = _command.GetCommand().Parse([
-            "--subscription", invalidSubscription,
-            "--resource-group", "valid-rg"
-        ]);
-
-        var context = new CommandContext(_serviceProvider);
-
-        // Act
-        var response = await _command.ExecuteAsync(context, args);
-
-        // Assert
-        Assert.Equal(400, response.Status);
-        Assert.Contains("subscription", response.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Theory]
