@@ -19,11 +19,11 @@ jobs:
 
   # Download the signed MCP server binaries for this OS
   - download: current
-    artifact: $(PipelineArtifactName)_signed
+    artifact: npm_$(PipelineArtifactName)_signed
     displayName: "Download signed MCP server binaries"
 
   - powershell: |
-      $src = "$(Pipeline.Workspace)/$(PipelineArtifactName)_signed/$(VsixTarget)/dist/*"
+      $src = "$(Pipeline.Workspace)/npm_$(PipelineArtifactName)_signed/$(VsixTarget)/dist/*"
       $dest = "$(VsixServerPath)/server"
       New-Item -ItemType Directory -Force -Path $dest
       Copy-Item -Path $src -Destination $dest -Recurse -Force

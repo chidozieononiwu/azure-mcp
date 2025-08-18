@@ -1,0 +1,43 @@
+jobs:
+- job: Build_Agnostic
+  displayName: "Build Agnostic Nuget Packages"
+  pool:
+    name: azsdk-pool
+    vmImage: windows-2022
+    
+  steps:
+  - checkout: self
+
+  - task: UseDotNet@2
+    displayName: "Use .NET SDK from global.json"
+    retryCountOnTaskFailure: 3
+    inputs:
+      useGlobalJson: true
+
+  - task: UseDotNet@2
+    displayName: "Install .NET 9 SDK to enable 9-targeting apps to run"
+    retryCountOnTaskFailure: 3
+    inputs:
+      packageType: 'sdk'
+      version: '9.0.x'
+
+  - task: Powershell@2
+    displayName: "Build module"
+    condition: and(succeeded(), ne(variables['NoPackagesChanged'],'true'))
+    inputs:
+      pwsh: true
+      filePath: $(Build.SourcesDirectory)/eng/scripts/Build-Module.ps1
+      arguments: >
+        -OutputPath '$(Build.ArtifactStagingDirectory)'
+        -Version '$(Version)'
+        -SelfContained
+        -PackStyle 'agnostic'
+
+  - task: ComponentGovernanceComponentDetection@0
+    displayName: "Component Governance Detection"
+
+  - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
+    parameters:
+      ArtifactPath: $(Build.ArtifactStagingDirectory)
+      ArtifactName: $(PipelineArtifactName)_os_agnostic
+      SbomEnabled: ${{ ne(variables['Build.Reason'], 'PullRequest') }}

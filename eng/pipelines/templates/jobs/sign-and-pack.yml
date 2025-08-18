@@ -4,8 +4,8 @@ parameters:
   default: 120
 
 jobs:
-- job: SignAndPack
-  displayName: "Sign and Pack"
+- job: SignAndPackNpm
+  displayName: "Sign and Pack Npm Packages"
   timeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
   pool: # Binary signing of mac bits needs to happen on mac see https://github.com/Azure/azure-mcp/blob/4ff032fafc77bc618738879b7028665c0de2e632/eng/scripts/Compress-ForSigning.ps1#L40
     name: $(MACPOOL)
@@ -25,12 +25,12 @@ jobs:
       arguments: >
         -ArtifactsPath '$(Pipeline.Workspace)'
         -ArtifactPrefix '$(PipelineArtifactName)_'
-        -OutputPath '$(Build.ArtifactStagingDirectory)/signed'
+        -OutputPath '$(Build.ArtifactStagingDirectory)/npm/signed'
 
   - template: pipelines/steps/binary-signing.yml@azure-sdk-build-tools
     parameters:
       SigningKeyCode: 'CP-230012' # MS Cert
-      BinaryPath: $(Build.ArtifactStagingDirectory)/signed
+      BinaryPath: $(Build.ArtifactStagingDirectory)/npm/signed
       BinaryPattern: |
         win-*/**/azmcp.dll
         win-*/**/azmcp.exe
@@ -39,7 +39,7 @@ jobs:
   - template: pipelines/steps/binary-signing.yml@azure-sdk-build-tools
     parameters:
       SigningKeyCode: 'CP-231522' # MS 3rd Party Cert
-      BinaryPath: $(Build.ArtifactStagingDirectory)/signed
+      BinaryPath: $(Build.ArtifactStagingDirectory)/npm/signed
       BinaryPattern: |
         win-*/**/ModelContextProtocol*.dll
         win-*/**/Npgsql.dll
@@ -48,7 +48,7 @@ jobs:
 
   - template: pipelines/steps/azd-cli-mac-signing.yml@azure-sdk-build-tools
     parameters:
-      MacPath: $(Build.ArtifactStagingDirectory)/signed
+      MacPath: $(Build.ArtifactStagingDirectory)/npm/signed
       MacPattern: "**/*.zip"
 
   - task: Powershell@2
@@ -57,12 +57,12 @@ jobs:
       pwsh: true
       filePath: $(Build.SourcesDirectory)/eng/scripts/Expand-AfterSigning.ps1
       arguments: >
-        -Path '$(Build.ArtifactStagingDirectory)/signed'
+        -Path '$(Build.ArtifactStagingDirectory)/npm/signed'
 
   - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
     parameters:
-      ArtifactPath: $(Build.ArtifactStagingDirectory)/signed
-      ArtifactName: $(PipelineArtifactName)_signed
+      ArtifactPath: $(Build.ArtifactStagingDirectory)/npm/signed
+      ArtifactName: npm_$(PipelineArtifactName)_signed
       SbomEnabled: ${{ ne(variables['Build.Reason'], 'PullRequest') }}
 
   - task: Powershell@2
@@ -71,12 +71,65 @@ jobs:
       pwsh: true
       filePath: $(Build.SourcesDirectory)/eng/scripts/Pack-Modules.ps1
       arguments: >
-        -ArtifactsPath '$(Build.ArtifactStagingDirectory)/signed'
-        -OutputPath '$(Build.ArtifactStagingDirectory)/packed'
+        -ArtifactsPath '$(Build.ArtifactStagingDirectory)/npm/signed'
+        -OutputPath '$(Build.ArtifactStagingDirectory)/npm/packed'
         -Version '$(Version)'
 
   - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
     parameters:
-      ArtifactPath: $(Build.ArtifactStagingDirectory)/packed
-      ArtifactName: $(PipelineArtifactName)_packed
+      ArtifactPath: $(Build.ArtifactStagingDirectory)/npm/packed
+      ArtifactName: npm_$(PipelineArtifactName)_packed
+      SbomEnabled: ${{ ne(variables['Build.Reason'], 'PullRequest') }}
+
+- job: SignAndPackNuget
+  displayName: "Sign and Pack Nuget Packages"
+  timeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
+  pool: # Binary signing of mac bits needs to happen on mac see https://github.com/Azure/azure-mcp/blob/4ff032fafc77bc618738879b7028665c0de2e632/eng/scripts/Compress-ForSigning.ps1#L40
+    name: azsdk-pool
+    vmImage: windows-2022
+    os: windows
+  steps:
+  - checkout: self
+    path: s
+
+  - checkout: azure-sdk-build-tools
+    path: azure-sdk-build-tools
+
+  - download: current
+    displayName: Download artifacts
+
+  - pwsh: |
+      $ArtifactsPath = "$(Pipeline.Workspace)"
+      $ArtifactPrefix = "$(PipelineArtifactName)_"
+      $OutputPath = Join-Path $(Build.ArtifactStagingDirectory) nuget signed
+
+      $artifactDirectories = Get-ChildItem -Path $ArtifactsPath -Directory
+      | Where-Object { $_.Name -like "$ArtifactPrefix*" }
+      | Where-Object { $_.Name -notlike '*FailedAttempt*' }
+
+      foreach ($artifactDirectory in $artifactDirectories) {
+        $nugetPackageDir = $artifactDirectory | Get-ChildItem -Filter "nuget" -Recurse -Directory
+        $os_arch = $artifactDirectory.Name -replace "$ArtifactPrefix", ''
+        $destinationPath = Join-Path $OutputPath $os_arch
+        $sourcePath = Join-Path $nugetPackageDir '*'
+        New-Item -ItemType Directory -Force -Path $destinationPath | Out-Null
+
+        Write-Host "Copying $sourcePath to $destinationPath`n" -ForegroundColor Yellow
+        Copy-Item -Path $sourcePath -Destination $destinationPath -Recurse -Force
+      }
+
+      Write-Host "`n##[group] Staged Artifacts"
+      Get-ChildItem -Path $OutputPath -Recurse | Select-Object FullName | Out-Host
+      Write-Host "##[endgroup]`n"
+    displayName: "Pack NuGet packages"
+
+  - template: pipelines/steps/net-signing.yml@azure-sdk-build-tools
+    parameters:
+      PackagesPath: $(Build.ArtifactStagingDirectory)/nuget/signed
+      BuildToolsPath: $(Pipeline.Workspace)/azure-sdk-build-tools
+
+  - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
+    parameters:
+      ArtifactPath: $(Build.ArtifactStagingDirectory)/nuget/signed
+      ArtifactName: nuget_$(PipelineArtifactName)_signed
       SbomEnabled: ${{ ne(variables['Build.Reason'], 'PullRequest') }}

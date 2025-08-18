@@ -68,6 +68,7 @@ extends:
               Path: eng/pipelines/build-matrix.json
               Selection: all
               GenerateVMJobs: true
+      - template: /eng/pipelines/templates/jobs/build-agnostic.yml
 
     - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(parameters.RunLiveTests, 'true')) }}:
       - stage: Test
@@ -104,11 +105,11 @@ extends:
         - ${{ each vsixtarget in parameters.VsixTargets }}:
           - template: /eng/pipelines/templates/jobs/sign-and-pack-vsix.yml
             parameters:
-              DependsOn: SignAndPack
+              DependsOn: SignAndPackNpm
               VsixTarget: ${{ vsixtarget }}
         - job: Verify_Signing
           displayName: "Verify Signing"
-          dependsOn: SignAndPack
+          dependsOn: SignAndPackNpm
           pool:
             name: $(WINDOWSPOOL) # Signing verification must happen on windows
             image: $(WINDOWSVMIMAGE)

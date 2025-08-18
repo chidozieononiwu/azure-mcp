@@ -44,6 +44,13 @@ jobs:
       version: '9.0.x'
 
   - task: Powershell@2
+    displayName: "(Native AOT) Install Linux arm64 cross compile toolchain"
+    condition: eq('false', 'true')
+    inputs:
+      pwsh: true
+      filePath: $(Build.SourcesDirectory)/eng/scripts/Install-LinuxArm64CrossCompileToolchain.ps1
+
+  - task: Powershell@2
     displayName: "Build module"
     condition: and(succeeded(), ne(variables['NoPackagesChanged'],'true'))
     inputs:
@@ -55,6 +62,7 @@ jobs:
         -OperatingSystem '${{ parameters.OSName }}'
         -Architecture '$(Architecture)'
         -SelfContained
+        -PackStyle 'runtime'
 
   - task: Powershell@2
     displayName: "Run tests"
@@ -85,7 +93,7 @@ jobs:
 
   - task: Powershell@2
     displayName: "(Native AOT) Build module"
-    condition: and(succeeded(), ne(variables['NoPackagesChanged'],'true'))
+    condition: and(succeeded(), ne(variables['NoPackagesChanged'],'true'), not(and(eq('${{ parameters.OSName }}', 'linux'), eq(variables['Architecture'], 'arm64'))))
     inputs:
       pwsh: true
       filePath: $(Build.SourcesDirectory)/eng/scripts/Build-Module.ps1
