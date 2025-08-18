@@ -75,7 +75,7 @@ try {
         Remove-Item -Path $outputDirNuget -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
         New-Item -Path $outputDirNuget -ItemType Directory -Force | Out-Null
         
-        $packCommand = "dotnet pack '$projectFile' --output '$outputDirNuget' /p:ToolType=aot /p:Version=$Version /p:Configuration=$configuration /p:PackAsTool=true"
+        $packCommand = "dotnet pack '$projectFile' --output '$outputDirNuget' /p:ToolType=aot /p:Version=$Version /p:Configuration=$configuration /p:BuildNative=true"
         Invoke-LoggedCommand $packCommand -GroupOutput
         # Keep only the .nupkg file with the shortest name (entry-point package)
         $allPkgs = Get-ChildItem -Path $outputDirNuget -Filter "*.nupkg"
@@ -105,7 +105,7 @@ try {
         Copy-Item -Path "$npmPackagePath/*" -Recurse -Destination $outputDirNpm -Force
 
         $publishCommand = "dotnet publish '$projectFile' --runtime '$os-$arch' --output '$outputDirDist' /p:Version=$Version /p:Configuration=$configuration"
-        $packCommand = "dotnet pack '$projectFile' --runtime '$os-$arch' --output '$outputDirNuget' /p:ToolType=aot /p:Version=$Version /p:Configuration=$configuration /p:PackAsTool=true /p:PublishSingleFile=true /p:SelfContained=true"
+        $packCommand = "dotnet pack '$projectFile' --runtime '$os-$arch' --output '$outputDirNuget' /p:ToolType=aot /p:Version=$Version /p:Configuration=$configuration /p:BuildNative=true"
 
         if($SelfContained) {
             $publishCommand += " --self-contained"
