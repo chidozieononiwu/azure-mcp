@@ -2,9 +2,9 @@ jobs:
 - job: Build_Agnostic
   displayName: "Build Agnostic Nuget Packages"
   pool:
-    name: azsdk-pool
-    vmImage: windows-2022
-    
+    name: $(WINDOWSPOOL)
+    image: $(WINDOWSVMIMAGE)
+
   steps:
   - checkout: self
 
