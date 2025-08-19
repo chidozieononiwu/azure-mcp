@@ -4,6 +4,7 @@ jobs:
   pool:
     name: $(WINDOWSPOOL)
     image: $(WINDOWSVMIMAGE)
+    os: windows
 
   steps:
   - checkout: self

@@ -102,11 +102,11 @@ extends:
           value: $[ stageDependencies.Initialize.Initialize.outputs['Version.Version'] ]
         jobs:
         - template: /eng/pipelines/templates/jobs/sign-and-pack.yml
-        - ${{ each vsixtarget in parameters.VsixTargets }}:
-          - template: /eng/pipelines/templates/jobs/sign-and-pack-vsix.yml
-            parameters:
-              DependsOn: SignAndPackNpm
-              VsixTarget: ${{ vsixtarget }}
+        #- ${{ each vsixtarget in parameters.VsixTargets }}:
+        #  - template: /eng/pipelines/templates/jobs/sign-and-pack-vsix.yml
+        #    parameters:
+        #      DependsOn: SignAndPackNpm
+        #      VsixTarget: ${{ vsixtarget }}
         - job: Verify_Signing
           displayName: "Verify Signing"
           dependsOn: SignAndPackNpm
