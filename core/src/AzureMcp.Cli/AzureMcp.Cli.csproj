@@ -13,6 +13,9 @@
     <PublishTrimmed>false</PublishTrimmed>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <DebugType>embedded</DebugType>
+    <NativeCodeGeneration>
+      <AdditionalLinkerOptions>/guard:cf /DYNAMICBASE</AdditionalLinkerOptions>
+    </NativeCodeGeneration>
   </PropertyGroup>
   <!-- Enable Trim and AOT Analyzers -->
   <PropertyGroup>
