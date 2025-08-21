@@ -1,0 +1,13 @@
+{
+    "tool": "BinSkim",
+    "suppressions": [
+        {
+            "file": [
+                "nuget/signed/temp/ContainerSigning/**/tools/any/win-arm64/azmcp.exe",
+                "nuget/signed/temp/ContainerSigning/**/tools/any/win-x64/azmcp.exe"
+            ],
+            "rule": "BA2008",
+            "justification": "Suppress Control Flow Guard(CFG) requirement for NativeAOT;NativeAOT does not support CFG for this target as of .NET 9"
+        }
+    ]
+}

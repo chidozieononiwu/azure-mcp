@@ -28,9 +28,6 @@ resources:
 extends:
   template: /eng/pipelines/templates/1es-redirect.yml
   parameters:
-    sdl:
-      binskim:
-        enabled: false
     autoBaseline: ${{ and(eq(variables['Build.DefinitionName'], 'azure - mcp'), eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['System.TeamProject'], 'internal')) }}
     stages:
     - stage: Initialize
