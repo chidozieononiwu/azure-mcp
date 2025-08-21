@@ -37,6 +37,10 @@
     <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
     <!-- Multi-platform support - keep these aligned with the NPM publishing scripts -->
     <RuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>
+
+    <!-- Enable Control Flow Guard -->
+    <EnableControlFlowGuard>true</EnableControlFlowGuard>
+    <DynamicBase>true</DynamicBase>
     <NativeAotAdditionalLinkerOptions>/guard:cf /DYNAMICBASE</NativeAotAdditionalLinkerOptions>
   </PropertyGroup>
   <!-- .NET Tool Package settings -->
@@ -98,6 +102,12 @@
     <ProjectReference Remove="..\..\..\areas\virtualdesktop\src\AzureMcp.VirtualDesktop\AzureMcp.VirtualDesktop.csproj" />
     <PackageReference Remove="Microsoft.Azure.Cosmos" />
   </ItemGroup>
+
+<ItemDefinitionGroup Condition="'$(BuildNative)' == 'true'">
+  <ClCompile>
+    <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+  </ClCompile>
+</ItemDefinitionGroup>
 
   <!-- Remove Cosmos native files from the build output directory -->
   <Target Name="RemoveCosmosNativeFiles" BeforeTargets="GetCopyToOutputDirectoryItems">

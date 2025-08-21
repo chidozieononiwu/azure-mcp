@@ -127,6 +127,9 @@ jobs:
       $sourceDir = Join-Path $(Build.SourcesDirectory) ".gdn"
       $destDir = Join-Path $(Agent.BuildDirectory) ".gdn"
       Copy-Item -Path $sourceDir -Destination $destDir -Recurse -Force
+
+      Write-Host "Suppression file Contents:"
+      Get-Content -Path (Join-Path $destDir ".gdnsuppress") | Out-Host
     displayName: "Copy over .gdnsuppress file"
 
   - template: pipelines/steps/net-signing.yml@azure-sdk-build-tools
